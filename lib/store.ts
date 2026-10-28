@@ -16,8 +16,15 @@ const local = () => !onSupabase() && process.env.NODE_ENV !== "production";
 export const storeReady = () => onSupabase() || local();
 
 let client: SupabaseClient | null = null;
+// Next.js caches GET fetches made inside GET route handlers, even force-dynamic ones, so every Supabase request
+// opts out. Without this, /api/slots kept serving the first answer it got and booked times never showed as taken.
+const noStore: typeof fetch = (input, init) => fetch(input, { ...init, cache: "no-store" });
+
 function sb() {
-  client ??= createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  client ??= createClient(SB_URL, SB_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: noStore },
+  });
   return client;
 }
 
