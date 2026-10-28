@@ -26,9 +26,6 @@ export default function Home() {
   return (
     <>
       <a className="skip" href="#main">Skip to content</a>
-      <div className="orbs" aria-hidden="true">
-        <span /><span /><span /><span /><span />
-      </div>
       <SiteHeader home />
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
