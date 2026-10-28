@@ -62,14 +62,14 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
 .play { position: absolute; z-index: 2; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 1px solid rgba(243, 238, 228, 0.5); display: flex; align-items: center; justify-content: center; }
 
 /* Hero */
-/* Glowing colour orbs drifting behind the header and hero */
-.orbs { position: absolute; top: 0; left: 0; right: 0; height: 1100px; overflow: hidden; pointer-events: none; z-index: 0; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
-.orbs span { position: absolute; width: clamp(280px, 44vw, 640px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgb(var(--c) / 0.6) 0%, rgb(var(--c) / 0.42) 16%, rgb(var(--c) / 0.26) 30%, rgb(var(--c) / 0.14) 42%, rgb(var(--c) / 0.06) 54%, rgb(var(--c) / 0.015) 63%, transparent 70%); will-change: transform; }
-.orbs span:nth-child(1) { --c: 201 164 106; top: -14%; left: -10%; --dx: 9vw; --dy: 7vh; }
-.orbs span:nth-child(2) { --c: 232 98 60; top: -6%; right: -12%; --dx: -8vw; --dy: 9vh; }
-.orbs span:nth-child(3) { --c: 196 58 122; top: 30%; left: 4%; --dx: 10vw; --dy: -6vh; }
-.orbs span:nth-child(4) { --c: 112 82 214; top: 22%; right: 2%; --dx: -11vw; --dy: -5vh; }
-.orbs span:nth-child(5) { --c: 38 150 160; top: 52%; left: 38%; --dx: 7vw; --dy: -8vh; }
+/* Glowing colour orbs drifting along the top, behind the nav. They fade out before the headline. */
+.orbs { position: absolute; top: 0; left: 0; right: 0; height: 360px; overflow: hidden; pointer-events: none; z-index: 0; -webkit-mask-image: linear-gradient(#000 25%, transparent 80%); mask-image: linear-gradient(#000 25%, transparent 80%); }
+.orbs span { --s: clamp(240px, 30vw, 460px); position: absolute; top: calc(var(--cy) - var(--s) / 2); left: calc(var(--cx) - var(--s) / 2); width: var(--s); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgb(var(--c) / 0.6) 0%, rgb(var(--c) / 0.42) 16%, rgb(var(--c) / 0.26) 30%, rgb(var(--c) / 0.14) 42%, rgb(var(--c) / 0.06) 54%, rgb(var(--c) / 0.015) 63%, transparent 70%); will-change: transform; }
+.orbs span:nth-child(1) { --c: 201 164 106; --cx: 4%; --cy: 40px; --dx: 9vw; --dy: 18px; }
+.orbs span:nth-child(2) { --c: 232 98 60; --cx: 27%; --cy: 10px; --dx: -7vw; --dy: 24px; }
+.orbs span:nth-child(3) { --c: 196 58 122; --cx: 50%; --cy: 50px; --dx: 8vw; --dy: -16px; }
+.orbs span:nth-child(4) { --c: 112 82 214; --cx: 73%; --cy: 15px; --dx: -9vw; --dy: 20px; }
+.orbs span:nth-child(5) { --c: 38 150 160; --cx: 96%; --cy: 45px; --dx: -7vw; --dy: -14px; }
 .site-header, main { position: relative; z-index: 1; }
 
 .hero { padding-top: 88px; }
@@ -211,7 +211,7 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
   .site-header .logo { height: 30px; }
   .site-header .pill { min-height: 40px; padding: 0 16px; font-size: 14px; }
   .hero { padding-top: 48px; }
-  .orbs { height: 900px; }
+  .orbs { height: 280px; }
   .strip { justify-content: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 20px 16px; margin-top: 48px; scrollbar-width: none; }
   .strip .media { scroll-snap-align: center; }
   .strip .media:nth-child(n) { width: 200px; height: 320px; }
