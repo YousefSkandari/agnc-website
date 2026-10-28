@@ -3,7 +3,7 @@ import Media from "@/components/Media";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import WorkGrid from "@/components/WorkGrid";
 import { site } from "@/lib/config";
-import { work } from "@/content/work";
+import { shoots, work } from "@/content/work";
 
 const kinds = ["Takeaways", "Cafés", "Fine dining", "Street food", "Burger joints", "Pizzerias", "Family restaurants", "Dessert spots", "Bakeries", "Delivery kitchens"];
 
@@ -107,6 +107,29 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="section tight" aria-labelledby="shoots-title">
+          <div className="wrap reveal">
+            <div className="section-head">
+              <div>
+                <div className="caps">Behind the lens</div>
+                <h2 id="shoots-title" className="h2">We shoot people, too.</h2>
+              </div>
+              <p className="lede">Portraits, lookbooks and location shoots. The same eye we bring to your food, turned on your team, your room and your regulars.</p>
+            </div>
+          </div>
+          <div className="band">
+            <div className="band-track">
+              {/* The set runs twice so the loop never shows a gap. The copy is hidden from screen readers. */}
+              {[...shoots, ...shoots].map((s, i) => (
+                <figure key={i} aria-hidden={i >= shoots.length || undefined}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={s.src} alt={i < shoots.length ? s.alt : ""} loading="lazy" />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="section tight" aria-label="The welcome deal">
           <div className="wrap reveal">
             <div className="deal">
@@ -127,11 +150,17 @@ export default function Home() {
           <div className="wrap about reveal">
             <div className="about-photos">
               <figure>
-                <div className="media" style={{ aspectRatio: "4/5" }}><span className="tag">PHOTO</span></div>
+                <div className="media" style={{ aspectRatio: "4/5" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/work/nes.webp" alt="Nes" loading="lazy" />
+                </div>
                 <figcaption><span className="serif">Nes</span><span>[Role]</span></figcaption>
               </figure>
               <figure>
-                <div className="media" style={{ aspectRatio: "4/5" }}><span className="tag">PHOTO</span></div>
+                <div className="media" style={{ aspectRatio: "4/5" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/work/gaby.webp" alt="Gaby" loading="lazy" />
+                </div>
                 <figcaption><span className="serif">Gaby</span><span>[Role]</span></figcaption>
               </figure>
             </div>

@@ -57,7 +57,7 @@ With no Supabase keys, the form still works locally. Requests go to `.data/reque
 
 - `lib/config.ts`: WhatsApp number and link, email, Instagram, monthly price.
 - `lib/config.ts` → `booking`: call times, which weekdays you take calls (`callDays`, 0 is Sunday), and how many days ahead (`daysAhead`, 3 and 4 by default). If a day isn't allowed, the form skips forward to the next allowed one.
-- `app/page.tsx`: Nes & Gaby's roles and a line about you both. Add your photos the same way as the work media below.
+- `app/page.tsx`: Nes & Gaby's roles and a line about you both. Your photos are `public/work/nes.webp` and `gaby.webp`.
 - `app/privacy/page.tsx`: legal name and registered address.
 
 ## Adding reels and photos
@@ -71,10 +71,19 @@ With no Supabase keys, the form still works locally. Requests go to `.data/reque
    ```
 
    - `kind` decides which tab it shows under: Reels, Photos or Launches.
-   - `aspect` can be `9/16`, `1/1` or `4/5`.
+   - `aspect` can be `9/16`, `2/3`, `4/5`, `1/1` or `3/2`.
    - The first five `featured` items fill the strip under the headline, and the third one sits in the middle.
 
    Reels play silently on a loop when they're on screen and pause when they're not. Anyone who has reduced motion turned on sees the poster instead.
+
+3. The "We shoot people, too" photo band takes its photos from `shoots` in the same file. They're 2:3 portraits.
+
+Phone videos are usually HDR, which looks washed out on the web. Convert them to standard range first. This is how the current reels were made:
+
+```bash
+ffmpeg -i in.MOV -an -vf "scale=576:1024,zscale=tin=arib-std-b67:min=bt2020nc:pin=bt2020:t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=mobius:desat=0,zscale=t=bt709:m=bt709:r=tv,fps=30,format=yuv420p" \
+  -c:v libx264 -preset slow -crf 28 -maxrate 1400k -bufsize 2800k -movflags +faststart public/work/name.mp4
+```
 
 ## Seeing requests
 

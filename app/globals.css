@@ -57,6 +57,7 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
 .media video, .media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .tag { position: absolute; z-index: 2; left: 14px; top: 14px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--cream); background: rgba(17, 17, 16, 0.8); padding: 6px 10px; border-radius: 999px; }
 .cap { position: absolute; z-index: 2; left: 16px; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 2px; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); }
+.media:has(.cap)::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(transparent, rgba(17, 17, 16, 0.72)); pointer-events: none; }
 .cap .serif { font-size: 22px; line-height: 1.1; }
 .cap small { font-size: 13px; color: var(--soft); }
 .play { position: absolute; z-index: 2; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 1px solid rgba(243, 238, 228, 0.5); display: flex; align-items: center; justify-content: center; }
@@ -107,6 +108,13 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
 .masonry .media { margin-bottom: 20px; break-inside: avoid; transition: box-shadow 0.3s; }
 .masonry .media:hover { box-shadow: 0 0 0 1px var(--gold); }
 .empty-work { color: var(--muted); }
+
+/* Photo band. Still and scrollable by default; with motion allowed, the set drifts past in a loop and pauses on hover. */
+.band { margin-top: 56px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.band-track { display: flex; gap: 20px; width: max-content; padding: 0 48px; }
+.band figure { margin: 0; flex: 0 0 auto; width: clamp(200px, 22vw, 300px); aspect-ratio: 2 / 3; border-radius: 18px; overflow: hidden; background: var(--placeholder); scroll-snap-align: center; }
+.band figure[aria-hidden] { display: none; }
+.band img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Plan cards */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
@@ -174,6 +182,7 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
 @keyframes breathe { from { transform: translate(-2%, -50%); } to { transform: translate(2%, -50%); } }
 @keyframes glow { from { opacity: 0; } to { opacity: 1; } }
 @keyframes orb { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(var(--dx), var(--dy), 0) scale(1.18); } 100% { transform: translate3d(calc(var(--dx) * -0.7), calc(var(--dy) * 0.6), 0) scale(0.9); } }
+@keyframes slide { to { transform: translateX(calc(-50% - var(--gap) / 2)); } }
 @keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(201, 164, 106, 0.55); } 100% { box-shadow: 0 0 0 22px rgba(201, 164, 106, 0); } }
 @media (prefers-reduced-motion: no-preference) {
   .site-header { animation: bIn 0.8s var(--ease) both; }
@@ -196,6 +205,10 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
   .play { animation: ring 2.2s 1.8s ease-out infinite; }
   .tick { animation: drift 45s linear infinite alternate; }
   .closer > img { animation: breathe 14s ease-in-out infinite alternate; }
+  .band { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+  .band figure[aria-hidden] { display: block; }
+  .band-track { --gap: 20px; gap: var(--gap); padding: 0; animation: slide 70s linear infinite; }
+  .band:hover .band-track { animation-play-state: paused; }
   @supports (animation-timeline: view()) {
     .reveal > *, .masonry .media { animation: bIn linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
   }
@@ -224,7 +237,11 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
   .masonry .cap { left: 12px; right: 12px; bottom: 12px; }
   .masonry .cap .serif { font-size: 17px; }
   .masonry .cap small { font-size: 12px; }
+  .masonry .cap > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card { padding: 28px; }
+  .band { margin-top: 40px; }
+  .band-track { padding: 0 20px; gap: 12px; }
+  .band figure { width: 190px; border-radius: 14px; }
   .about-photos { flex-basis: 100%; }
   .closer { padding: 100px 0; }
 }
