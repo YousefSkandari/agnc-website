@@ -2,7 +2,10 @@
 // still to be filled in.
 export const site = {
   name: "agnc. media",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://agnc.media",
+  // Falls back to the production domain Vercel gives every deployment, so this only needs setting to override it
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
   whatsapp: "[07XXX XXX XXX]",
   // Digits only, with the country code and no leading zero: 447700900123
   whatsappLink: "https://wa.me/",

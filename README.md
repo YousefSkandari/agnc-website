@@ -49,7 +49,7 @@ With no Supabase keys, the form still works locally. Requests go to `.data/reque
    | `RESEND_API_KEY` | From Resend |
    | `EMAIL_FROM` | e.g. `agnc. media <hello@yourdomain.com>`, on the verified domain |
    | `NOTIFY_EMAIL` | Where new requests go. Comma-separate for both of you. |
-   | `NEXT_PUBLIC_SITE_URL` | The live address, e.g. `https://agnc.media` |
+   | `NEXT_PUBLIC_SITE_URL` | Optional. The live address for link previews; without it the project's production domain is used. |
 
 4. **Domain.** Add it in Vercel > Project > Domains, then put the same address on the letters.
 
