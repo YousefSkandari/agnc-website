@@ -210,7 +210,7 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
   .band-track { --gap: 20px; gap: var(--gap); padding: 0; animation: slide 70s linear infinite; }
   .band:hover .band-track { animation-play-state: paused; }
   @supports (animation-timeline: view()) {
-    .reveal > *, .masonry .media { animation: bIn linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    .reveal > *:not(.masonry), .masonry .media { animation: bIn linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
   }
 }
 

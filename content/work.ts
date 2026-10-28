@@ -27,7 +27,6 @@ export const work: WorkItem[] = [
   { kind: "Launches", label: "REEL · 0:35", client: "Beirut Station", caption: "Opening day, queue round the block", aspect: "9/16",
     src: "/work/reel-opening-day.mp4", poster: "/work/reel-opening-day.jpg", featured: true },
   { kind: "Photos", label: "PHOTO", client: "Beirut Station", caption: "Labneh and oil", aspect: "3/2", src: "/work/food-labneh.webp" },
-  { kind: "Photos", label: "PHOTO", client: "Beirut Station", caption: "Fajita tray", aspect: "4/5", src: "/work/food-fajita-tray.webp" },
   { kind: "Photos", label: "PHOTO", client: "Beirut Station", caption: "Wraps and garlic sauce", aspect: "4/5", src: "/work/food-wraps.webp", featured: true },
   { kind: "Launches", label: "REEL · 0:17", client: "Beirut Station", caption: "First look inside", aspect: "9/16",
     src: "/work/reel-the-room.mp4", poster: "/work/reel-the-room.jpg" },
