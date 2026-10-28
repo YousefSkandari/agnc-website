@@ -25,7 +25,7 @@ export const booking = {
 };
 
 export const choices = {
-  cuisines: ["Lebanese", "North African", "African", "Middle Eastern", "Mediterranean", "Smash burgers", "Something else"],
+  cuisines: ["Burgers", "Pizza & Italian", "Indian", "Chinese", "Japanese", "Thai", "Middle Eastern", "African", "Caribbean", "Mediterranean", "Café & brunch", "Desserts", "Something else"],
   opening: ["Already open", "This month", "Next month", "In 2 to 3 months", "Not sure yet"],
   goals: ["A packed opening week", "Regulars who come back", "More delivery orders", "A following before we open"],
   how: ["Video", "Phone"],

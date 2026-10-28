@@ -11,6 +11,7 @@ type Answers = {
   restaurant: string;
   postcode: string;
   cuisines: string[];
+  cuisineOther: string;
   opening: string;
   menuLater: boolean;
   goal: string;
@@ -28,7 +29,7 @@ type Done = { callText: string; how: string; calendar: string };
 const TOTAL = 8;
 const DRAFT = "agnc-plan-draft-v1";
 const blank: Answers = {
-  restaurant: "", postcode: "", cuisines: [], opening: "", menuLater: false, goal: "", notes: "", instagram: "",
+  restaurant: "", postcode: "", cuisines: [], cuisineOther: "", opening: "", menuLater: false, goal: "", notes: "", instagram: "",
   date: "", time: "", how: "Video", name: "", email: "", whatsapp: "",
 };
 // Which step to send someone back to when the server rejects an answer
@@ -241,7 +242,7 @@ export default function PlanForm() {
       next();
     }
   };
-  const field = (k: "restaurant" | "postcode" | "instagram" | "name" | "email" | "whatsapp") => ({
+  const field = (k: "restaurant" | "postcode" | "cuisineOther" | "instagram" | "name" | "email" | "whatsapp") => ({
     id: `f-${k}`,
     className: "in",
     value: a[k],
@@ -325,13 +326,23 @@ export default function PlanForm() {
                   const on = a.cuisines.includes(c);
                   return (
                     <button key={c} type="button" className="choice" aria-pressed={on}
-                      onClick={() => set("cuisines", on ? a.cuisines.filter((x) => x !== c) : [...a.cuisines, c])}>
+                      onClick={() => {
+                        set("cuisines", on ? a.cuisines.filter((x) => x !== c) : [...a.cuisines, c]);
+                        // The box for "Something else" opens below the chips, off screen on phones
+                        if (c === "Something else" && !on) setTimeout(() => document.getElementById("f-cuisineOther")?.scrollIntoView({ block: "center" }), 60);
+                      }}>
                       {c}
                     </button>
                   );
                 })}
               </div>
               {err("cuisines")}
+              {a.cuisines.includes("Something else") && (
+                <div className="other">
+                  <label className="lbl" htmlFor="f-cuisineOther">What do you cook? <span className="opt">(optional)</span></label>
+                  <input {...field("cuisineOther")} maxLength={60} placeholder="e.g. Peruvian, vegan, seafood" />
+                </div>
+              )}
             </div>
           )}
 

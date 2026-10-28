@@ -2,10 +2,10 @@ import Link from "next/link";
 import Media from "@/components/Media";
 import { SiteFooter, SiteHeader } from "@/components/Site";
 import WorkGrid from "@/components/WorkGrid";
-import { choices, site } from "@/lib/config";
+import { site } from "@/lib/config";
 import { work } from "@/content/work";
 
-const kitchens = choices.cuisines.filter((c) => c !== "Something else");
+const kinds = ["Takeaways", "Cafés", "Fine dining", "Street food", "Burger joints", "Pizzerias", "Family restaurants", "Dessert spots", "Bakeries", "Delivery kitchens"];
 
 const plan = [
   ["A day-by-day posting calendar", "Thirty days mapped out, from the first teaser to the end of your first month."],
@@ -45,16 +45,16 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="kitchens" aria-label="Kitchens we love">
+        <section className="kitchens" aria-label="Restaurants we work with">
           <div className="tick" aria-hidden="true">
-            {kitchens.map((k, i) => (
+            {kinds.map((k, i) => (
               <span key={k} style={{ display: "contents" }}>
                 {i > 0 && <span className="dot">·</span>}
                 <span>{k}</span>
               </span>
             ))}
           </div>
-          <p className="wrap">The kitchens we love most: {kitchens.slice(0, -1).join(", ")} and {kitchens[kitchens.length - 1].toLowerCase()}.</p>
+          <p className="wrap">From takeaways to fine dining, we work with every kind of restaurant. Your plan is built around your food and your street.</p>
         </section>
 
         <section id="work" className="section">

@@ -44,6 +44,7 @@ textarea.in { min-height: 132px; resize: vertical; }
 .choice.tile { min-height: 72px; border-radius: 18px; text-align: left; padding: 0 22px; font-size: 18px; }
 .choice.tall { min-height: 88px; }
 .choices { display: flex; flex-wrap: wrap; gap: 12px; }
+.other { margin-top: 22px; max-width: 420px; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .tiles.wide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .day { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 20px 22px; min-height: auto; border-radius: 20px; text-align: left; }

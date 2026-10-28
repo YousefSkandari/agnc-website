@@ -76,7 +76,7 @@ export async function sendBookingEmails(b: Booking) {
   const rows = b.answers.map(([k, v]) => `<tr><td style="padding:6px 16px 6px 0;color:#5A554D;vertical-align:top">${h(k)}</td><td style="padding:6px 0">${h(v || "-")}</td></tr>`);
   const files = b.files.length
     ? b.files.map((f) => `<li><a href="${h(f.url)}">${h(f.path.split("/").pop() || f.path)}</a></li>`).join("")
-    : "<li>No files. " + (b.answers.find(([k]) => k === "Menu")?.[1] ?? "") + "</li>";
+    : "<li>No files. " + h(b.answers.find(([k]) => k === "Menu")?.[1] ?? "") + "</li>";
   const toUs = send({
     to: NOTIFY,
     replyTo: b.email,

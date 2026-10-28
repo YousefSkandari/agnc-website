@@ -1,4 +1,4 @@
-// The work shown on the home page. Drop the files into public/work/ and point `src` at them, e.g. "/work/lebanese-opening.mp4".
+// The work shown on the home page. Drop the files into public/work/ and point `src` at them, e.g. "/work/opening-night.mp4".
 // Videos (.mp4 or .webm) play silently on a loop; add a `poster` image so something shows while they load.
 // Items without `src` show as striped placeholders until the real media is in.
 export type WorkKind = "Reels" | "Photos" | "Launches";
@@ -22,5 +22,5 @@ export const work: WorkItem[] = [
   { kind: "Reels", label: "REEL · 0:18", client: "[Client name]", caption: "Meet the chef", aspect: "9/16", featured: true },
   { kind: "Photos", label: "PHOTO", client: "[Client name]", caption: "The dining room", aspect: "4/5" },
   { kind: "Launches", label: "POST", client: "[Client name]", caption: "Launch day offer", aspect: "1/1" },
-  { kind: "Photos", label: "PHOTO", client: "[Client name]", caption: "Mezze spread", aspect: "4/5" },
+  { kind: "Photos", label: "PHOTO", client: "[Client name]", caption: "Sharing plates", aspect: "4/5" },
 ];

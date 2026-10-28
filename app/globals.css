@@ -73,7 +73,7 @@ h1, h2, h3, p { margin: 0; text-wrap: pretty; }
 .strip .media:nth-child(2), .strip .media:nth-child(4) { width: 250px; height: 410px; }
 .strip .media:nth-child(3) { width: 290px; height: 500px; border: 1px solid rgba(201, 164, 106, 0.6); }
 
-/* Cuisine ticker */
+/* Restaurant types ticker */
 .kitchens { padding: 56px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 72px; overflow: hidden; }
 .tick { display: flex; gap: 40px; width: max-content; white-space: nowrap; font-family: var(--serif); font-style: italic; font-size: clamp(40px, 5vw, 56px); line-height: 1.05; color: transparent; -webkit-text-stroke: 1px var(--cream); }
 .tick .dot { -webkit-text-stroke: 0; color: var(--gold); }

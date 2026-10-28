@@ -22,7 +22,10 @@ export async function POST(req: Request) {
   if (str(b.website, 200)) return json({ ok: true, id: "thanks" });
 
   const restaurant = str(b.restaurant, 120);
-  const cuisines = Array.isArray(b.cuisines) ? b.cuisines.filter((c): c is string => choices.cuisines.includes(c as string)) : [];
+  const picked = Array.isArray(b.cuisines) ? b.cuisines.filter((c): c is string => choices.cuisines.includes(c as string)) : [];
+  // "Something else" is swapped for what they typed, when they typed something
+  const other = str(b.cuisineOther, 60);
+  const cuisines = picked.map((c) => (c === "Something else" && other ? other : c));
   const files = Array.isArray(b.files) ? b.files.filter((f): f is string => typeof f === "string" && FILE_PATH.test(f)).slice(0, upload.maxFiles) : [];
   const name = str(b.name, 80);
   const email = str(b.email, 160).toLowerCase();
