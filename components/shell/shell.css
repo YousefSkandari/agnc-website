@@ -1,0 +1,76 @@
+/* PACKAGE A: header, menu sheet, bottom bar, d1, d2, reel viewer, d7, d8, footer, privacy page.
+   Stub from the scaffold. Class prefixes owned by A: .hdr .menu- .bbar .d1 .strip .photos .viewer .v- .stop
+   .founders .d8 .ftr .prose */
+
+.hdr {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--night);
+  border-bottom: 1px solid var(--hairline);
+}
+.hdr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+.hdr-nav {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  height: 32px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.hdr-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.hdr-nav a[aria-current="true"] {
+  color: var(--cream);
+}
+
+#d1,
+#d2,
+#d7,
+#d8 {
+  padding-block: clamp(64px, 6.67vw, 96px);
+}
+
+.ftr {
+  padding-block: 64px;
+  border-top: 1px solid var(--hairline);
+  color: var(--soft);
+}
+
+.prose {
+  max-width: 720px;
+  padding-block: 64px 96px;
+  color: var(--soft);
+}
+.prose h1 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05;
+  color: var(--cream);
+}
+.prose h2 {
+  margin-top: 40px;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--cream);
+}
+.prose p,
+.prose ul {
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .hdr-nav {
+    display: none;
+  }
+}

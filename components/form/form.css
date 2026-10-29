@@ -1,0 +1,22 @@
+/* PACKAGE C: the plan form, in the overlay and on /plan.
+   Stub from the scaffold. Class prefix owned by C: .pf */
+
+.pf-dialog {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.pf-dialog:not([open]) {
+  display: none;
+}
+.pf {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 24px var(--gutter) 64px;
+}
+.pf-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}

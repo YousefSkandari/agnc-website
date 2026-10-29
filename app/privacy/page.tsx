@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import Footer from "@/components/shell/Footer";
+import Header from "@/components/shell/Header";
 import { site } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default function Privacy() {
   return (
     <>
-      <SiteHeader />
+      <Header variant="page" />
       <main className="wrap prose" id="main">
         <h1>Privacy notice</h1>
         <p>This notice explains what agnc. media holds about you, why, and what you can ask us to do about it. Last updated 28 October 2026.</p>
@@ -25,7 +26,7 @@ export default function Privacy() {
         <p>Don&apos;t want to hear from us again? Text STOP to {site.whatsapp} or email {site.email}. We&apos;ll stop straight away and keep only your company name on a do-not-contact list, so we don&apos;t write to you by mistake in future.</p>
 
         <h2>If you filled in our form</h2>
-        <p>We collect what you give us: your name, email, WhatsApp number, your restaurant&apos;s name and postcode, your menu and any files you upload, your answers about your food and goals, and the call time you pick. We use it to write your 30-day launch plan, hold the call, and follow up about it.</p>
+        <p>We collect what you give us: your name, email, phone number, your restaurant&apos;s name and postcode, your menu and any files you upload, your answers about your food and goals, and the call time you pick. We use it to write your 30-day launch plan, hold the call, and follow up about it.</p>
         <p>We use these details because you asked us to write your plan, and because we have a legitimate interest in following up with people who ask for one. We keep them for 12 months after your call, or for as long as you&apos;re a client and then six years for our accounts.</p>
 
         <h2>Who else sees your details</h2>
@@ -45,7 +46,7 @@ export default function Privacy() {
         <p>You can ask for a copy of what we hold about you, ask us to correct or delete it, ask us to stop using it, or object to us contacting you. Just email {site.email}. We&apos;ll reply within a month.</p>
         <p>If you&apos;re unhappy with how we&apos;ve handled your details, you can complain to the Information Commissioner&apos;s Office at <a href="https://ico.org.uk/make-a-complaint/">ico.org.uk</a> or on 0303 123 1113.</p>
       </main>
-      <SiteFooter />
+      <Footer />
     </>
   );
 }

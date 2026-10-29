@@ -1,0 +1,25 @@
+/* PACKAGE B: d4 (the 30-day example plan) and d5 (how it works, price, terms and questions).
+   Stub from the scaffold. Class prefixes owned by B: .cal .hiw .price .faq */
+
+.cal,
+.hiw {
+  padding-block: clamp(64px, 6.67vw, 96px);
+  border-top: 1px solid var(--hairline);
+}
+.cal-close {
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+@media (max-width: 860px) {
+  .cal-close {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .cal-close .pill {
+    width: 100%;
+  }
+}
