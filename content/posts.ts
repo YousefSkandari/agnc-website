@@ -148,4 +148,3 @@ export const POSTS: readonly Post[] = [
 // The gold "doors" divider sits before this post in the d2 strip
 export const DOORS_BEFORE: ReelId = "opening";
 
-export const postIndex = (id: string) => POSTS.findIndex((p) => p.id === id);

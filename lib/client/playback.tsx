@@ -22,14 +22,25 @@ type Entry = {
   visible: boolean;
   playing: boolean;
   start: number | null;
+  // When another video's play() paused this one (0 when it was not). A video pushed aside like this starts again
+  // once the one that took over stops, if it still wants to play.
+  preemptedAt: number;
+  preempting: boolean;
+  wants: () => boolean;
+  resume: () => void;
+  held: () => boolean;
 };
 
+// What a video tells the provider so it can be started again after another one has taken over and let go:
+// whether it still wants to play, how to start it, and whether the visitor paused it (a pause they chose gives
+// nothing else the turn)
+export type Wants = { wants: () => boolean; resume: () => void; held: () => boolean };
+
 type Ctx = {
-  register: (key: string, el: HTMLVideoElement, postId: string | null) => void;
+  register: (key: string, el: HTMLVideoElement, postId: string | null, wants?: Wants) => void;
   unregister: (key: string, el: HTMLVideoElement) => void;
   setPostId: (key: string, postId: string | null) => void;
   play: (key: string) => Promise<PlayResult>;
-  pauseAll: (except?: string) => void;
   stop: Stop | null;
 };
 
@@ -80,14 +91,43 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
     return io.current;
   }, [evalStop]);
 
+  // A video stopped (scrolled away, unhovered, removed, ended) and nothing else is playing: give the screen back to
+  // the video pushed aside most recently, if that one still wants to play. Pauses made by play() itself (one
+  // video at a time) never release, so two videos can't hand the turn back and forth.
+  const release = useCallback(() => {
+    requestAnimationFrame(() => {
+      // Something else has already started (the next card in a strip, the next post): leave it be
+      if (Array.from(entries.current.values()).some((e) => !e.el.paused)) return;
+      let best: Entry | null = null;
+      entries.current.forEach((e) => {
+        if (e.preemptedAt && (!best || e.preemptedAt > best.preemptedAt)) best = e;
+      });
+      const b = best as Entry | null;
+      if (!b) return;
+      b.preemptedAt = 0;
+      if (b.el.paused && b.wants()) b.resume();
+    });
+  }, []);
+
   const register = useCallback(
-    (key: string, el: HTMLVideoElement, postId: string | null) => {
+    (key: string, el: HTMLVideoElement, postId: string | null, wants?: Wants) => {
       const prev = entries.current.get(key);
       if (prev && prev.el !== el) {
         endStop(prev);
         io.current?.unobserve(prev.el);
       }
-      const e: Entry = { el, postId, visible: false, playing: !el.paused, start: null };
+      const e: Entry = {
+        el,
+        postId,
+        visible: false,
+        playing: !el.paused,
+        start: null,
+        preemptedAt: 0,
+        preempting: false,
+        wants: wants?.wants ?? (() => false),
+        resume: wants?.resume ?? (() => {}),
+        held: wants?.held ?? (() => false),
+      };
       entries.current.set(key, e);
       el.muted = true;
       const obs = observer();
@@ -104,8 +144,10 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       endStop(e);
       io.current?.unobserve(el);
       entries.current.delete(key);
+      // A playing video taken off the page (a hovered card's video, the viewer closing) lets go of the screen
+      if ((e.playing || !el.paused) && !e.held()) release();
     },
-    [endStop],
+    [endStop, release],
   );
 
   const setPostId = useCallback(
@@ -129,7 +171,14 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
     async (key: string) => {
       const e = entries.current.get(key);
       if (!e) return "missing";
-      pauseAll(key);
+      const now = performance.now();
+      entries.current.forEach((o, k) => {
+        if (k === key || o.el.paused) return;
+        o.preempting = true;
+        o.preemptedAt = now;
+        o.el.pause();
+      });
+      e.preemptedAt = 0;
       e.el.muted = true;
       try {
         await e.el.play();
@@ -138,7 +187,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
         return err instanceof DOMException && err.name === "NotAllowedError" ? "refused" : "aborted";
       }
     },
-    [pauseAll],
+    [],
   );
 
   // Track playing state for the stop timer
@@ -150,6 +199,10 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
         if (e.el !== t) return;
         e.playing = ev.type === "playing";
         evalStop(e);
+        if (ev.type === "pause" || ev.type === "ended") {
+          if (e.preempting) e.preempting = false;
+          else if (!e.held()) release();
+        }
       });
     };
     const types = ["playing", "pause", "waiting", "ended"];
@@ -162,16 +215,18 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       io.current?.disconnect();
       io.current = null;
     };
-  }, [evalStop]);
+  }, [evalStop, release]);
 
-  // Turning motion off stops everything that is playing
+  // Turning motion off stops everything that is playing, and nothing pushed aside comes back by itself
   useEffect(() => {
-    if (!motion) pauseAll();
+    if (motion) return;
+    entries.current.forEach((e) => (e.preemptedAt = 0));
+    pauseAll();
   }, [motion, pauseAll]);
 
   const value = useMemo<Ctx>(
-    () => ({ register, unregister, setPostId, play, pauseAll, stop }),
-    [register, unregister, setPostId, play, pauseAll, stop],
+    () => ({ register, unregister, setPostId, play, stop }),
+    [register, unregister, setPostId, play, stop],
   );
   return <PlaybackContext.Provider value={value}>{children}</PlaybackContext.Provider>;
 }
@@ -180,11 +235,6 @@ function usePlaybackCtx(): Ctx {
   const c = useContext(PlaybackContext);
   if (!c) throw new Error("PlaybackProvider is missing");
   return c;
-}
-
-export function usePlayback(): Pick<Ctx, "play" | "pauseAll"> {
-  const { play, pauseAll } = usePlaybackCtx();
-  return { play, pauseAll };
 }
 
 export type ManagedVideoOptions = {
@@ -233,9 +283,19 @@ export function useManagedVideo(key: string, { active = false, postId = null, on
 
   const ref = useCallback((el: HTMLVideoElement | null) => setElement(el), []);
 
+  // Read by the provider at the moment another video lets go (see release in PlaybackProvider)
+  const want = useRef({ active, autoplay, userPaused: false });
+  want.current.active = active;
+  want.current.autoplay = autoplay;
+  const attemptRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     if (!element) return;
-    register(key, element, postRef.current);
+    register(key, element, postRef.current, {
+      wants: () => want.current.active && want.current.autoplay && !want.current.userPaused,
+      resume: () => attemptRef.current(),
+      held: () => want.current.userPaused,
+    });
     const onPlaying = () => {
       setPlaying(true);
       setRefused(false);
@@ -266,6 +326,7 @@ export function useManagedVideo(key: string, { active = false, postId = null, on
   }, [key, postId, setPostId]);
 
   const markUserPaused = useCallback((v: boolean) => {
+    want.current.userPaused = v;
     setUserPaused(v);
   }, []);
 
@@ -275,6 +336,7 @@ export function useManagedVideo(key: string, { active = false, postId = null, on
       else if (r === "playing") setRefused(false);
     });
   }, [ctxPlay, key]);
+  attemptRef.current = attempt;
 
   const play = useCallback(() => {
     markUserPaused(false);

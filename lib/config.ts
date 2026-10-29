@@ -19,13 +19,14 @@ export const site = {
   companyNumber: "[COMPANY NO.]",
   // Shown as "From [PRICE] a month"
   monthlyPrice: "[PRICE]",
-  city: "London",
+  // The privacy notice's "trading as [legal name], [registered address]"
+  legalName: "[legal name]",
+  address: "[registered address]",
 };
 
 // Our client on the hero. Leave the link "" until the real profile URL is confirmed: the line then shows as plain text.
 export const client = {
   name: "Beirut Station",
-  place: "Egham",
   instagramLink: "",
 };
 
@@ -64,7 +65,6 @@ export const choices = {
   ],
   opening: ["We’re already open", "This month", "Next month"],
   goals: ["Get found before we open", "A busy opening week", "Bring people back"],
-  how: ["Video", "Phone"],
 };
 
 export const upload = {

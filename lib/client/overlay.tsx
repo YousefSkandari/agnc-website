@@ -126,12 +126,28 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const onPop = () => {
+    const onPop = (e: PopStateEvent) => {
       if (ignorePops.current > 0) {
         ignorePops.current -= 1;
         return;
       }
-      if (stateRef.current.kind === "none") return;
+      const mark = e.state && typeof e.state[MARK] === "number" ? (e.state[MARK] as number) : 0;
+      if (stateRef.current.kind === "none") {
+        // Forward (or back after a reload) onto an entry of a layer that is no longer open: return to the page's
+        // own entry, so no dead entries pile up in the history
+        if (mark > 0) {
+          ignorePops.current += 1;
+          history.go(-mark);
+        }
+        return;
+      }
+      // Browser forward into an entry the layer already left (after the form's own Back): undo it, so the step on
+      // screen and the count of entries stay as they are. Every other popstate is a back press.
+      if (mark > pushed.current) {
+        ignorePops.current += 1;
+        history.go(pushed.current - mark);
+        return;
+      }
       pushed.current = Math.max(0, pushed.current - 1);
       const used = back.current ? back.current() : false;
       if (used && pushed.current > 0) return;

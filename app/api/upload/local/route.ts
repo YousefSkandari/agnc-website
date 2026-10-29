@@ -1,11 +1,11 @@
 import { json, oops } from "@/lib/guard";
-import { saveLocalUpload } from "@/lib/store";
+import { local, saveLocalUpload } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-// Development only: stands in for the Supabase signed upload link when Supabase isn't set up
+// Local only: stands in for the Supabase signed upload link when Supabase isn't set up (see local() in lib/store)
 export async function PUT(req: Request) {
-  if (process.env.NODE_ENV === "production") return oops("Not found", 404);
+  if (!local()) return oops("Not found", 404);
   const path = new URL(req.url).searchParams.get("path") || "";
   const form = await req.formData();
   const file = Array.from(form.values()).find((v): v is File => typeof v !== "string");

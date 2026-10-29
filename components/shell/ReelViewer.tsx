@@ -490,7 +490,8 @@ function PhoneLayer({ m }: { m: Model }) {
               </div>
             </div>
             <button type="button" className="v-ph-nextb" aria-label={nextAria} onClick={tap(idx + 1)}>
-              <span>
+              {/* The swipe hint is for the eye; the name says which post comes next (WCAG 2.5.3 then holds) */}
+              <span aria-hidden="true">
                 <IconUp />
                 <span>{nextLabel}</span>
               </span>

@@ -47,7 +47,6 @@ export const CAL_MEDIA = {
 export type CalMediaId = keyof typeof CAL_MEDIA;
 
 export const CAL_JOBS: Record<CalJob, string> = { found: "Get found", followed: "Get followed", in: "Fill tables", back: "Bring them back" };
-export const CAL_JOB_IDS: readonly CalJob[] = ["found", "followed", "in", "back"];
 export const CAL_WEEKDAY_FULL: Record<string, string> = {
   Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday",
 };

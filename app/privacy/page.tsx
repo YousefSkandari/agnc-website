@@ -21,7 +21,7 @@ export default function Privacy() {
         <p>This notice explains what agnc. media holds about you, why, and what you can ask us to do about it. Last updated 28 October 2026.</p>
 
         <h2>Who we are</h2>
-        <p>agnc. media is a restaurant marketing agency run by Nes &amp; Gaby, trading as [legal name], [registered address]. We decide how your details are used, which makes us the controller under UK data protection law. You can reach us at {site.email} or on WhatsApp at {site.whatsapp}.</p>
+        <p>agnc. media is a restaurant marketing agency run by Nes &amp; Gaby, trading as {site.legalName}, {site.address}. We decide how your details are used, which makes us the controller under UK data protection law. You can reach us at {site.email} or on WhatsApp at {site.whatsapp}.</p>
 
         <h2>If we sent you a letter</h2>
         <p>We found your company on the public Companies House register, which lists new companies, their registered address and their directors. We used your company name, that address and the director&apos;s name to write to you once about our restaurant marketing.</p>

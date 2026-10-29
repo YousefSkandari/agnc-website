@@ -24,9 +24,6 @@ export function parsePostcode(v: unknown): Postcode {
 
 export const postcodeOk = (v: unknown) => parsePostcode(v).valid;
 
-// The outward code ("TW20"), or "" when the postcode isn't valid
-export const outcode = (v: unknown) => parsePostcode(v).out;
-
 // A UK number, starting 0 or +44. Spaces, brackets, dots and dashes are ignored.
 export function phoneOk(v: unknown) {
   const d = String(v ?? "").replace(/[\s().-]/g, "");

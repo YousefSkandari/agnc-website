@@ -9,7 +9,9 @@ import { site } from "@/lib/config";
 import { MOTION_SCRIPT } from "@/lib/motion-script";
 
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif" });
-const sans = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
+// Inter is a variable font: one file covers the 400, 500 and 600 weights the design uses. (Listing the weights makes
+// Google serve static instances that next/font cannot download.)
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
 
 // The Agency Test: the title and description say what we are (a social media marketing agency), who for

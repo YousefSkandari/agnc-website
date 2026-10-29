@@ -109,42 +109,6 @@ const session: { step: Step; file: File | null; uploaded: { file: File; path: st
   done: null,
 };
 
-// Browser forward. The shared overlay reads every popstate as a back press, so a forward press (into a step entry the
-// form had left with Back) would step the form back again and leave the overlay's count of its entries wrong. While
-// the overlay's form is open, this listener sees each popstate first (it is added when the module loads, before the
-// overlay's own, and in the capture phase): a move to a later entry is undone at once and hidden from everyone else,
-// so forward simply does nothing. The marks are the overlay's history.state.agncOverlay counters (lib/client/overlay).
-const fwd: { on: boolean; last: number | null; undo: number } = { on: false, last: null, undo: 0 };
-
-function overlayMark(state: unknown): number | null {
-  const m = state && typeof state === "object" ? (state as Record<string, unknown>).agncOverlay : null;
-  return typeof m === "number" ? m : null;
-}
-
-if (typeof window !== "undefined") {
-  window.addEventListener(
-    "popstate",
-    (e) => {
-      if (!fwd.on) return;
-      const m = overlayMark(e.state);
-      if (fwd.undo > 0) {
-        fwd.undo -= 1;
-        fwd.last = m;
-        e.stopImmediatePropagation();
-        return;
-      }
-      if (m !== null && fwd.last !== null && m > fwd.last) {
-        e.stopImmediatePropagation();
-        fwd.undo += 1;
-        history.go(fwd.last - m);
-        return;
-      }
-      fwd.last = m;
-    },
-    true,
-  );
-}
-
 function openingView(o: Opening, today: Ymd | null) {
   if (o.kind === "open") return { chip: "OPEN NOW", line: ALREADY_OPEN, already: true };
   if (!today) return { chip: "", line: "", already: false };
@@ -282,10 +246,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
   // Forward one step: a history entry in the overlay, so the browser's back comes back here
   const forward = useCallback(
     (from: StepN) => {
-      if (overlay) {
-        pushStep();
-        fwd.last = overlayMark(history.state);
-      }
+      if (overlay) pushStep();
       go(from === 8 ? "done" : ((from + 1) as StepN));
     },
     [overlay, pushStep, go],
@@ -318,17 +279,6 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     const s = stepRef.current;
     if (typeof s === "number") for (let i = 1; i < s; i++) pushStep();
   }, [overlay, pushStep]);
-
-  // Watch for browser forward while the overlay's form is open (see fwd above)
-  useEffect(() => {
-    if (!overlay) return;
-    fwd.on = true;
-    fwd.last = overlayMark(history.state);
-    fwd.undo = 0;
-    return () => {
-      fwd.on = false;
-    };
-  }, [overlay]);
 
   // Focus follows the step (F8): the new step's heading, or the field the server asked about
   useEffect(() => {
@@ -367,11 +317,23 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
 
   useEffect(() => {
     alive.current = true;
+    // A reload or a closed tab within those 300ms would otherwise lose the last answer typed
+    const flush = () => {
+      if (pending.current && !finished.current) writeDraft(pending.current);
+      pending.current = null;
+    };
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onHidden);
     return () => {
       alive.current = false;
       window.clearTimeout(advTimer.current);
       window.clearTimeout(copyTimer.current);
-      if (pending.current && !finished.current) writeDraft(pending.current);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onHidden);
+      flush();
     };
   }, []);
 
