@@ -1,18 +1,1107 @@
 /* PACKAGE B: d4 (the 30-day example plan) and d5 (how it works, price, terms and questions).
-   Stub from the scaffold. Class prefixes owned by B: .cal .hiw .price .faq */
+   Class prefixes owned by B: .cal .hiw .price .faq
+   Values are the artboard's (B-desktop 366-664 and its head CSS 39-41, 57, 69-70, 100-124, 160-168); at 640px and
+   below the phone screen B-phone-5 wins for d4. Motion sits behind the shared convention in app/globals.css. */
 
-.cal,
-.hiw {
+/* ======================================================================
+   d4: Thirty days
+   ====================================================================== */
+
+.cal {
+  background: var(--night);
   padding-block: clamp(64px, 6.67vw, 96px);
   border-top: 1px solid var(--hairline);
 }
-.cal-close {
-  margin-top: 48px;
+
+/* ---------- controls ---------- */
+
+.cal-ctl {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+.cal-datewrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cal-datelab {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fld.cal-date {
+  width: 220px;
+  height: 44px;
+  padding: 0 14px;
+  color-scheme: dark;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 24px;
+}
+.cal-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cal-chips .chipb {
+  height: 44px;
+}
+
+.cal-stat {
+  margin-top: 12px;
+  min-height: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+.cal-status {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--cream);
+  text-wrap: pretty;
+}
+.cal-leg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The logo on its plate: our own work */
+.cal-logo {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--plate);
+}
+.cal-logo img,
+.cal-logomark {
+  display: block;
+  flex: none;
+  width: 40px;
+  height: 9px;
+}
+.cal-leglogo,
+.cal-pleglogo {
+  border: 1px solid var(--hairline);
+}
+.cal-legtx {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+/* ---------- the desktop grid ---------- */
+
+.cal-dt {
+  margin-top: 32px;
+}
+.cal-wkh {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.cal-weeks {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cal-week {
+  min-width: 0;
+}
+
+/* The phase lane above each week: DAYS TO GO, DOORS OPEN, DAYS OPEN */
+.cal-lane {
+  height: 20px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 12px;
+  align-items: end;
+}
+.cal-seg {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cal-seglab {
+  display: block;
+  height: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--muted);
+}
+.cal-seglab.is-cream {
+  color: var(--cream);
+}
+.cal-segline {
+  display: block;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.cal-row {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+.cal-li {
+  min-width: 0;
+}
+.cal-li--more {
+  display: flex;
+}
+
+/* A day */
+.cal-cell {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--placeholder);
+  color: var(--cream);
+  text-align: left;
+}
+.cal-cell--d1 {
+  border-color: var(--cream);
+}
+.cal-cell--sample {
+  background: var(--surface-2);
+  border: 1px dashed var(--outline);
+}
+.cal-cell--sample.is-dim {
+  border-color: rgba(243, 238, 228, 0.16);
+}
+.cal-cimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Filtered out or passed: the picture, the glyph and the outline dim, never the text (D 1772) */
+.is-dim .cal-dim {
+  opacity: 0.3;
+}
+
+.cal-cday {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--plate);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.cal-cday--bare {
+  top: 10px;
+  left: 10px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.cal-cdate {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--soft);
+}
+.cal-cdate.is-past {
+  text-decoration: line-through;
+}
+.cal-cstamp {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.cal-ctag {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  max-width: calc(100% - 16px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--plate);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  white-space: normal;
+}
+.cal-ctag svg,
+.cal-ptag svg {
+  flex: none;
+}
+
+/* A sample day */
+.cal-sbadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 6px;
+  border: 1px dashed var(--outline);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+}
+.cal-sglyph {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  color: var(--muted);
+}
+.cal-sfoot {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+}
+.cal-sfmt {
+  color: var(--muted);
+}
+.cal-sjob {
+  color: var(--cream);
+}
+/* Labels drop to muted on dimmed days: still 4.5:1 or better on the night surfaces */
+.cal-cell.is-dim .cal-ctag,
+.cal-cell.is-dim .cal-sjob {
+  color: var(--muted);
+}
+
+/* A day or a card is two layers: the picture and its labels (hidden from assistive tech, clipped to the corners),
+   and a transparent button over the whole tile, border included, that carries the label. The tile itself does not
+   clip, so the button's focus ring shows in full. */
+.cal-vis {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 11px;
+  overflow: hidden;
+}
+.cal-hit {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The gold ring on the open day */
+.cal-ring {
+  position: absolute;
+  inset: 0;
+  border: 0 solid transparent;
+  border-radius: 11px;
+  pointer-events: none;
+}
+.is-open > .cal-ring {
+  border: 2px solid var(--gold);
+}
+
+/* "And 13 more." */
+.cal-more {
+  flex: 1 1 auto;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px dashed var(--outline);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 36px;
+  cursor: pointer;
+}
+.cal-fewer {
+  margin-top: 24px;
+  display: flex;
+}
+
+/* ---------- the brief (desktop) ---------- */
+
+.cal-brief {
+  margin-top: 16px;
+  min-height: 597px;
+  padding: 32px;
+  border-radius: 16px;
+  background: var(--surface-1);
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 48px;
+  scroll-margin-top: 104px;
+}
+.cal-bmedia {
+  position: relative;
+  width: 300px;
+  height: 533px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.cal-bmedia--d1 {
+  border: 1px solid var(--cream);
+}
+.cal-bmedia--sample {
+  border: 1px dashed var(--outline);
+}
+.cal-bvid {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cal-bimg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.cal-bstamp {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: calc(100% - 24px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--plate);
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+}
+.cal-bsbadge {
+  top: 12px;
+  left: 12px;
+  right: auto;
+}
+.cal-bsample {
+  position: absolute;
+  inset: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+.cal-bsglyph {
+  display: flex;
+  color: var(--muted);
+}
+.cal-bsfmt {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 40px;
+  line-height: 44px;
+  color: var(--cream);
+}
+.cal-bsnote {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--soft);
+}
+
+/* Video controls on a reel: the round pause button and the centred gold chip */
+.cal-vbtn {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--plate);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cal-bpause {
+  right: 12px;
+  bottom: 12px;
+}
+.cal-chip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--night);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cal-bbody {
+  min-width: 0;
+}
+.cal-bhead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
+  gap: 16px;
 }
+.cal-bcode {
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.cal-bctl {
+  flex: none;
+  display: flex;
+  gap: 8px;
+}
+/* Round controls on the brief's surface sit on night */
+.icob.cal-ib {
+  background: var(--night);
+  color: var(--cream);
+}
+.icob.cal-ib--disabled {
+  color: var(--cream);
+  opacity: 0.35;
+  cursor: default;
+}
+.cal-bt {
+  margin-top: 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 52px;
+  color: var(--cream);
+  text-wrap: balance;
+}
+.cal-bdl {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cal-brow {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: baseline;
+}
+.cal-brow dt {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.cal-brow dd {
+  max-width: 60ch;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--cream);
+  text-wrap: pretty;
+}
+
+/* ---------- the swiper (1200px and below) ---------- */
+
+.cal-ph {
+  display: none;
+}
+.cal-ticks {
+  margin-top: 20px;
+  height: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.cal-tick {
+  flex: none;
+  display: block;
+  width: 2px;
+  height: 6px;
+  background: var(--track);
+}
+.cal-tick.is-past,
+.cal-tick.is-one {
+  background: var(--cream);
+}
+.cal-tick.is-one,
+.cal-tick.is-cur {
+  height: 12px;
+}
+.cal-tick.is-cur {
+  background: var(--gold);
+}
+.cal-tick.is-out {
+  opacity: 0.35;
+}
+
+/* Bleeds to the right edge (D: margin-right calc(50% - 50vw), the same as minus the gutter). The 6px padding
+   above and below keeps the focus ring inside the scroller (B-phone-5 59). */
+.cal-sw {
+  position: relative;
+  margin: 2px calc(-1 * var(--gutter)) 0 -16px;
+  padding: 6px 16px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.cal-sw::-webkit-scrollbar,
+.cal-chips::-webkit-scrollbar {
+  display: none;
+}
+.cal-pcard {
+  position: relative;
+  flex: none;
+  width: 208px;
+  height: 370px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.cal-swend {
+  flex: 0 0 150px;
+  height: 1px;
+}
+
+/* A card (the D look between 641 and 1200px; B-phone-5 takes over below) */
+.cal-pc {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--placeholder);
+  color: var(--cream);
+  text-align: left;
+}
+.cal-pc.is-d1 {
+  border-color: var(--cream);
+}
+.cal-pc--sample {
+  background: var(--surface-2);
+  border: 1px dashed var(--outline);
+}
+.cal-pc--sample.is-dim {
+  border-color: rgba(243, 238, 228, 0.16);
+}
+.cal-pmedia {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.cal-pimg,
+.cal-pvid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cal-scrim {
+  display: none;
+}
+.cal-pday {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--plate);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cream);
+  white-space: nowrap;
+}
+.cal-pday .cal-cdate {
+  font-size: 11px;
+}
+.cal-pday--bare {
+  top: 10px;
+  left: 10px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.cal-pstamp {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.cal-ptag {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  max-width: calc(100% - 68px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--plate);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+}
+.cal-pmid {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.cal-pglyph {
+  display: flex;
+  color: var(--muted);
+}
+.cal-pfmt {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 36px;
+  line-height: 40px;
+  color: var(--cream);
+}
+.cal-pjob {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+}
+.cal-pc.is-dim .cal-ptag,
+.cal-pc.is-dim .cal-pjob,
+.cal-pc.is-dim .cal-pfmt {
+  color: var(--muted);
+}
+.cal-ppause {
+  right: 8px;
+  bottom: 8px;
+}
+
+.cal-pfoot {
+  margin-top: 6px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cal-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+}
+.cal-pleg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The brief under the swiper */
+.cal-pb {
+  margin-top: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface-1);
+  scroll-margin-top: max(56px, calc(var(--header-h) + 16px));
+}
+.cal-pbhead {
+  gap: 12px;
+}
+.cal-pbcode {
+  font-size: 11px;
+  line-height: 14px;
+}
+.cal-pbmark {
+  margin-top: 8px;
+  display: flex;
+}
+.cal-pbstamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--night);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.cal-sbadge.cal-pbsbadge {
+  position: static;
+}
+.cal-pbt {
+  margin-top: 12px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 32px;
+  color: var(--cream);
+  text-wrap: balance;
+}
+.cal-pbdl {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cal-pbdl dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.cal-pbdl dd {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--cream);
+  text-wrap: pretty;
+}
+.cal-pbnote {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--soft);
+}
+
+/* ---------- the close row ---------- */
+
+.cal-close {
+  margin-top: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.cal-closeq {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(30px, 2.5vw, 36px);
+  line-height: calc(1em + 6px);
+  color: var(--cream);
+  text-wrap: balance;
+}
+
+/* ======================================================================
+   d5: How it works and price
+   ====================================================================== */
+
+.hiw {
+  padding-block: clamp(56px, 6.1vw, 88px);
+  border-top: 1px solid var(--hairline);
+}
+.hiw-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 520px;
+  column-gap: 80px;
+  row-gap: 48px;
+  align-items: start;
+}
+.hiw-main {
+  min-width: 0;
+}
+.hiw-steps {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+}
+.hiw-step {
+  min-width: 0;
+  padding: 16px 0 24px;
+  border-top: 1px solid var(--hairline);
+}
+/* Filled after hydration: the line is reserved so nothing moves */
+.hiw-when {
+  display: block;
+  min-height: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+}
+.hiw-what {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  line-height: 38px;
+  color: var(--cream);
+}
+.hiw-cta {
+  margin-top: 16px;
+  display: flex;
+}
+
+/* The price card: cream paper the owner keeps */
+.price {
+  min-width: 0;
+  padding: 40px;
+  border-radius: 16px;
+}
+.price-logo {
+  width: 72px;
+  height: 17px;
+  filter: invert(1);
+}
+.price-h {
+  margin-top: 24px;
+  font-family: var(--serif);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 50px;
+  color: var(--night);
+}
+.price-from {
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 34px;
+  color: var(--night);
+}
+.price-list {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(17, 17, 16, 0.14);
+}
+.price-every {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.price-rows {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.price-row {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(17, 17, 16, 0.14);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 28px;
+  line-height: 36px;
+  color: var(--night);
+}
+
+/* Terms and questions */
+.faq {
+  margin-top: 16px;
+}
+.faq-sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--night);
+}
+.faq-sum > span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.faq-plus {
+  flex: none;
+}
+.faq[open] > .faq-sum .faq-plus {
+  transform: rotate(45deg);
+}
+.faq-dl {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.faq-dl dt {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--night);
+}
+.faq-dl dd {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--night);
+}
+
+/* ======================================================================
+   hover, motion, breakpoints
+   ====================================================================== */
+
+@media (hover: hover) {
+  .cal-cell:hover,
+  .cal-pc:hover {
+    border-color: var(--outline);
+  }
+  .icob.cal-ib:hover {
+    background: var(--hover-1);
+  }
+  .icob.cal-ib--disabled:hover {
+    background: var(--night);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-motion="on"] .cal-dim {
+    transition: opacity 150ms linear;
+  }
+  :root[data-motion="on"] .cal-bin {
+    animation: fadein 150ms linear both;
+  }
+  :root[data-motion="on"] .faq-plus {
+    transition: transform 150ms linear;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cal-dt,
+  .cal-leg {
+    display: none;
+  }
+  .cal-ph {
+    display: block;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hiw-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
+  }
+}
+
 @media (max-width: 860px) {
   .cal-close {
     flex-direction: column;
@@ -21,5 +1110,210 @@
   }
   .cal-close .pill {
     width: 100%;
+  }
+}
+
+/* Phone: B-phone-5 for d4, the artboard's phone rules for d5 */
+@media (max-width: 640px) {
+  .cal-kick {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .h2.cal-h2 {
+    margin-top: 12px;
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .cal-h2l {
+    display: block;
+  }
+
+  /* Date, then the status line, then the chips (B-phone-5 40-50) */
+  .cal-top {
+    display: flex;
+    flex-direction: column;
+  }
+  .cal-ctl,
+  .cal-stat {
+    display: contents;
+  }
+  .cal-datewrap {
+    order: 1;
+    margin-top: 16px;
+    height: 48px;
+    justify-content: space-between;
+  }
+  .cal-datelab {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .fld.cal-date {
+    flex: none;
+    width: 200px;
+    height: 48px;
+    font-size: 16px;
+    line-height: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  .cal-status {
+    order: 2;
+    margin-top: 8px;
+    min-height: 20px;
+    font-size: 15px;
+    line-height: 20px;
+  }
+  /* One row that scrolls sideways; 6px of padding above and below keeps the focus ring visible */
+  .cal-chips {
+    order: 3;
+    margin: 2px -16px -6px;
+    padding: 6px 16px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .cal-chips .chipb {
+    flex: none;
+    font-size: 15px;
+  }
+
+  .cal-ticks {
+    margin-top: 12px;
+  }
+  .cal-tick {
+    border-radius: 1px;
+  }
+
+  /* Cards: the outline moves to the ring, wide media is contained, and a scrim dims (B-phone-5 61-107) */
+  .cal-pc,
+  .cal-pc--sample {
+    border: 0;
+  }
+  .cal-pc .cal-vis {
+    border-radius: 12px;
+  }
+  .cal-pc .cal-hit {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .cal-pc--work.is-wide {
+    background: var(--surface-2);
+  }
+  .cal-pc.is-wide .cal-pimg {
+    object-fit: contain;
+  }
+  .cal-pc.is-dim .cal-dim {
+    opacity: 1;
+  }
+  .cal-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 16, 0.6);
+    opacity: 0;
+  }
+  .cal-pc.is-dim .cal-scrim {
+    opacity: 1;
+  }
+  .cal-pday {
+    gap: 1px;
+  }
+  .cal-pday--bare {
+    top: 12px;
+    left: 12px;
+  }
+  .cal-pc.is-dim .cal-pcode,
+  .cal-pc.is-dim .cal-psbadge {
+    color: var(--muted);
+  }
+  .cal-psbadge {
+    top: 10px;
+    right: 12px;
+  }
+  .cal-ptag {
+    max-width: 140px;
+  }
+  .cal-pmid {
+    inset: 0;
+    transform: none;
+    justify-content: center;
+  }
+  .cal-pc.is-dim .cal-pfmt {
+    color: var(--cream);
+  }
+  .cal-pjob {
+    left: 12px;
+    bottom: 12px;
+  }
+  .cal-pc .cal-ring {
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+  }
+  .cal-pc.is-d1 .cal-ring {
+    border-color: var(--cream);
+  }
+  .cal-pc--sample .cal-ring {
+    border: 1px dashed var(--outline);
+  }
+  .cal-pc.is-open .cal-ring {
+    border: 2px solid var(--gold);
+  }
+  .cal-ppause,
+  .pill.cal-pchip {
+    z-index: 2;
+  }
+  .pill.cal-pchip {
+    position: absolute;
+    left: 24px;
+    top: 163px;
+    width: 160px;
+    height: 44px;
+    padding: 0;
+    gap: 8px;
+    font-size: 15px;
+    line-height: 20px;
+  }
+  .cal-pleglogo {
+    border: 0;
+  }
+
+  /* The brief under the swiper */
+  .cal-pbhead {
+    gap: 8px;
+  }
+  .cal-pb .cal-ib svg {
+    width: 18px;
+    height: 18px;
+  }
+  .cal-pb .icob.cal-ib--disabled {
+    color: var(--disabled);
+    opacity: 1;
+  }
+  .cal-pbstamp {
+    gap: 6px;
+    padding: 4px 6px;
+  }
+
+  /* d5 */
+  .price {
+    padding: 24px;
+  }
+  .price-h {
+    font-size: 32px;
+    line-height: 38px;
+  }
+  .price-row {
+    font-size: 22px;
+    line-height: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 640px) {
+  :root[data-motion="on"] .cal-scrim {
+    transition: opacity 150ms linear;
+  }
+  :root[data-motion="on"] .cal-chips .chipb {
+    transition: transform 180ms var(--spring), background-color 150ms linear, color 150ms linear;
   }
 }

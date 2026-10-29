@@ -12,8 +12,11 @@ export const metadata: Metadata = {
 export default function Privacy() {
   return (
     <>
+      <a className="skip" href="#main">
+        Skip to the page
+      </a>
       <Header variant="page" />
-      <main className="wrap prose" id="main">
+      <main className="wrap prose" id="main" tabIndex={-1}>
         <h1>Privacy notice</h1>
         <p>This notice explains what agnc. media holds about you, why, and what you can ask us to do about it. Last updated 28 October 2026.</p>
 

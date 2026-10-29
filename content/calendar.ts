@@ -1,27 +1,47 @@
 // The example 30-day plan in d4 (artboard B-desktop logic block, CAL_MEDIA / CAL_JOBS / CAL_RAW / CAL_GLYPH /
-// CAL_DAYS / CAL_PHASE, lines 1188-1271). Days with media are our own work; the rest are marked SAMPLE and never
-// carry a picture. Copy is verbatim from the design.
+// CAL_DAYS / CAL_PHASE, lines 1197-1273). Days with media are our own work; the rest are marked SAMPLE and never
+// carry a picture. Copy is verbatim from the design. The files come from lib/media.ts; the alt text is the
+// calendar's own (it describes the post as it sits in the plan).
+import { photos, reels, type Photo, type Reel } from "@/lib/media";
 
 export type CalJob = "found" | "followed" | "in" | "back";
 export type CalPhase = "before" | "d1" | "after";
 export type CalGlyph = "reel" | "photo" | "carousel" | "stories" | "post" | "portrait";
 
 export type CalMedia =
-  | { kind: "video"; video: string; poster: string; ratio: number; alt: string }
+  | { kind: "video"; video: string; poster: string; width: number; height: number; ratio: number; alt: string }
   | { kind: "image"; src: string; width: number; height: number; ratio: number; alt: string };
 
+const video = (r: Reel, alt: string): CalMedia => ({
+  kind: "video",
+  video: r.video,
+  poster: r.poster,
+  width: r.width,
+  height: r.height,
+  ratio: r.width / r.height,
+  alt,
+});
+const image = (p: Photo, alt: string): CalMedia => ({
+  kind: "image",
+  src: p.src,
+  width: p.width,
+  height: p.height,
+  ratio: p.width / p.height,
+  alt,
+});
+
 export const CAL_MEDIA = {
-  opening: { kind: "video", video: "/work/reel-opening-day.mp4", poster: "/work/reel-opening-day.jpg", ratio: 0.5625, alt: "Opening day at Beirut Station, a queue round the block" },
-  fajitas: { kind: "video", video: "/work/reel-fajitas.mp4", poster: "/work/reel-fajitas.jpg", ratio: 0.5625, alt: "A chicken fajita wrap at Beirut Station, from the griddle to the tray" },
-  fire: { kind: "video", video: "/work/reel-fire-and-bread.mp4", poster: "/work/reel-fire-and-bread.jpg", ratio: 0.5625, alt: "Skewers over an open flame, then the restaurant sign" },
-  room: { kind: "video", video: "/work/reel-the-room.mp4", poster: "/work/reel-the-room.jpg", ratio: 0.5625, alt: "A tour of a new restaurant: painted murals, seating and the counter" },
-  process: { kind: "video", video: "/work/reel-the-process.mp4", poster: "/work/reel-the-process.jpg", ratio: 0.5625, alt: "Kitchen prep, the fryer and plating, then the table from above" },
-  share: { kind: "video", video: "/work/reel-made-to-share.mp4", poster: "/work/reel-made-to-share.jpg", ratio: 0.5625, alt: "Hands tearing bread through a bowl on patterned tiles, from above" },
-  courses: { kind: "video", video: "/work/reel-three-courses.mp4", poster: "/work/reel-three-courses.jpg", ratio: 0.5625, alt: "Starter, main and dessert on a split screen" },
-  labneh: { kind: "image", src: "/work/food-labneh.webp", width: 1200, height: 800, ratio: 1.5, alt: "One dish with olive oil, close up" },
-  wraps: { kind: "image", src: "/work/food-wraps.webp", width: 720, height: 1280, ratio: 0.5625, alt: "Wraps, fries and garlic sauce" },
-  spread: { kind: "image", src: "/work/food-spread.webp", width: 900, height: 1125, ratio: 0.8, alt: "A full table of dishes, from above" },
-  mezze: { kind: "image", src: "/work/food-mezze.webp", width: 720, height: 1280, ratio: 0.5625, alt: "A full spread from above, ready for the table" },
+  opening: video(reels.opening, "Opening day at Beirut Station, a queue round the block"),
+  fajitas: video(reels.fajitas, "A chicken fajita wrap at Beirut Station, from the griddle to the tray"),
+  fire: video(reels.fire, "Skewers over an open flame, then the restaurant sign"),
+  room: video(reels.room, "A tour of a new restaurant: painted murals, seating and the counter"),
+  process: video(reels.process, "Kitchen prep, the fryer and plating, then the table from above"),
+  share: video(reels.share, "Hands tearing bread through a bowl on patterned tiles, from above"),
+  courses: video(reels.courses, "Starter, main and dessert on a split screen"),
+  labneh: image(photos.labneh, "One dish with olive oil, close up"),
+  wraps: image(photos.wraps, "Wraps, fries and garlic sauce"),
+  spread: image(photos.spread, "A full table of dishes, from above"),
+  mezze: image(photos.mezze, "A full spread from above, ready for the table"),
 } satisfies Record<string, CalMedia>;
 
 export type CalMediaId = keyof typeof CAL_MEDIA;
