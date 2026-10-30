@@ -1,0 +1,1113 @@
+/* The plan form, in the overlay and on /plan.
+   Desktop and tablet from B-desktop (D 884–1108); at 640px and below the phone screen B-phone-4 (P4).
+   Class prefix: .pf. The artboard's .g-form / .g-form-aside are .pf-grid / .pf-aside here. */
+
+/* ---------- the overlay and the page ---------- */
+
+.pf-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--night);
+  color: var(--cream);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.pf-dialog:not([open]) {
+  display: none;
+}
+/* While it grows from the pill the page stays visible around it */
+.pf-dialog.is-entering::backdrop {
+  background: transparent;
+}
+
+.pf-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+.pf {
+  position: relative;
+  min-height: 100%;
+}
+
+.pf-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 6;
+}
+.pf-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pf-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) 480px;
+  column-gap: 96px;
+  justify-content: center;
+  align-items: start;
+  padding: 72px 0;
+}
+.pf-col {
+  min-width: 0;
+}
+
+/* Icons drawn differently on the phone (P4) */
+.pf-ico-ph {
+  display: none;
+}
+
+/* ---------- top: progress and step ---------- */
+
+.pf-segs {
+  display: flex;
+  gap: 4px;
+}
+.pf-seg {
+  flex: 1 1 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--track);
+  overflow: hidden;
+}
+.pf-seg > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.pf-seg.is-done > span {
+  transform: none;
+  background: var(--cream);
+}
+.pf-seg.is-cur > span {
+  transform: none;
+  background: var(--gold);
+}
+
+.pf-bar {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 20px;
+}
+.pf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-block: -12px;
+  padding: 0 8px 0 0;
+  border: 0;
+  background: none;
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pf-back svg {
+  width: 18px;
+  height: 18px;
+}
+.pf-steplabel {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* ---------- a step ---------- */
+
+.pf-form {
+  margin-top: 32px;
+}
+.pf-h {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(32px, 3.34vw, 48px);
+  line-height: calc(1em + 4px);
+  color: var(--cream);
+  text-wrap: balance;
+}
+.pf-sub {
+  margin-top: 12px;
+  font-size: 18px;
+  line-height: 26px;
+  color: var(--soft);
+}
+
+.pf-fields {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* Fields that can be wrong carry a 2px rule on their left, cream when they are */
+.pf-field--rule {
+  margin-left: -16px;
+  padding-left: 14px;
+  border-left: 2px solid transparent;
+}
+.pf-field--rule.is-bad {
+  border-left-color: var(--cream);
+}
+.pf-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--soft);
+}
+.pf .fld {
+  line-height: 24px;
+}
+.pf .fld.pf-upper {
+  text-transform: uppercase;
+}
+/* On desktop the rule marks the field, so the input keeps its hairline (D 909) */
+.pf .fld[aria-invalid="true"]:not(:focus-within) {
+  border-color: var(--hairline);
+}
+.pf-err {
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--cream);
+}
+.pf-err svg,
+.pf-alert svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+/* A message for the step, a group or the menu file: ruled on its left (D 978) */
+.pf-alert {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--cream);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--cream);
+}
+.pf-banner {
+  margin-top: 24px;
+}
+
+.pf-echo {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--surface-1);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.pf-echo svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* WHY WE ASK */
+.pf-why {
+  margin-top: 32px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 16px;
+}
+.pf-why-k {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.pf-why-t {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--soft);
+}
+.pf-why-only {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pf-why-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--cream);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.pf-why-link {
+  margin-top: 0;
+}
+
+/* Steps 2 and 3: chips */
+.pf-chips {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pf-other {
+  margin-top: 20px;
+}
+
+/* Step 3: the date */
+.pf-date {
+  margin-top: 24px;
+}
+.pf-date .fld {
+  max-width: 320px;
+  color-scheme: dark;
+}
+.pf-openline {
+  margin-top: 16px;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--cream);
+}
+
+/* Step 4: the menu */
+.pf-menu {
+  position: relative;
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.pf-fileinp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pf-fileinp:focus-visible ~ .pf-add,
+.pf-fileinp:focus-visible ~ .pf-file .pf-change {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.pf-add {
+  min-height: 56px;
+}
+.pf-add svg {
+  width: 18px;
+  height: 18px;
+}
+.pf-skip {
+  padding: 0 4px;
+}
+.pf-file {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--cream);
+}
+.pf-file-ok {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--gold);
+}
+.pf-file-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pf-change {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--cream);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+/* Step 5: the goal */
+.pf-goals {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pf-goal {
+  justify-content: space-between;
+  height: 64px;
+  min-height: 64px;
+  padding: 0 20px;
+  border-width: 2px;
+  border-color: var(--hairline);
+  font-weight: 600;
+}
+.pf-goal[aria-pressed="true"] {
+  border-color: var(--gold);
+}
+.pf-goal-ind {
+  display: flex;
+  flex: none;
+  color: var(--gold);
+}
+.pf-goal-ind svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Step 6 */
+textarea.fld.pf-notes {
+  height: 120px;
+  min-height: 120px;
+  padding: 14px 16px;
+}
+.pf-insta {
+  position: relative;
+}
+.pf-at {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.pf .pf-insta .fld {
+  padding-left: 36px;
+}
+
+/* Step 7: day and time */
+.pf-fs {
+  margin: 28px 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.pf-fs + .pf-fs {
+  margin-top: 20px;
+}
+.pf-legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pf-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pf-day {
+  min-height: 48px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+.pf-time {
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+/* A booked time: struck through as well as dimmed, so it doesn't rely on colour */
+.pf-time:disabled {
+  color: var(--disabled);
+  text-decoration: line-through;
+  cursor: default;
+}
+.pf-slotmsg {
+  margin-top: 28px;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--soft);
+}
+.pf-fs ~ .pf-slotmsg {
+  margin-top: 20px;
+}
+.pf-retry {
+  min-height: 44px;
+  font-size: 17px;
+}
+
+/* Step 8: the WhatsApp switch */
+.pf-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--cream);
+  cursor: pointer;
+}
+.pf-switch input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+/* ---------- Continue ---------- */
+
+.pf-go {
+  margin-top: 32px;
+  width: 100%;
+}
+.pf-reassure {
+  margin-top: 12px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- done ---------- */
+
+.pf-done {
+  margin-top: 32px;
+}
+.pf-done-h {
+  font-size: clamp(36px, 3.34vw, 48px);
+}
+.pf-done-p {
+  margin-top: 12px;
+  font-size: 18px;
+  line-height: 26px;
+  color: var(--soft);
+  text-wrap: pretty;
+}
+.pf-done-acts {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pf-done-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.pf-done-note {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--muted);
+}
+.pf-done-back {
+  margin-top: 24px;
+}
+
+/* ---------- the plan card ---------- */
+
+.pf-aside {
+  position: sticky;
+  top: 72px;
+  min-width: 0;
+}
+.pf-card {
+  padding: 24px 28px 28px;
+  border-radius: 16px;
+}
+.pf-card-k {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.pf-card-name {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 46px;
+  color: var(--night);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pf-card-name.is-empty {
+  color: var(--gold-ink);
+}
+.pf-card-chips {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pf-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px dashed var(--gold-ink);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gold-ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pf-chip.is-on {
+  border-style: solid;
+  border-color: var(--night);
+  background: var(--night);
+  color: var(--cream);
+}
+.pf-card-done {
+  margin-top: 20px;
+  border-top: 1px solid rgba(17, 17, 16, 0.14);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+
+/* ---------- hover (pointer devices only) ---------- */
+
+@media (hover: hover) {
+  .pf-back:hover,
+  .pf-change:hover,
+  .pf-why-link a:hover {
+    color: var(--soft);
+  }
+  /* The goal rows keep their state colour under the pointer (their border is the answer) */
+  .pf-goal:hover {
+    border-color: var(--hairline);
+  }
+  .pf-goal[aria-pressed="true"]:hover {
+    border-color: var(--gold);
+  }
+  .pf-time:disabled:hover {
+    border-color: var(--hairline);
+  }
+}
+
+/* ---------- motion (never with reduced motion, never with MOTION off) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-motion="on"] .pf-dialog.is-run {
+    transition: clip-path 280ms var(--ease);
+  }
+  :root[data-motion="on"] .pf-cin {
+    animation: fadein 160ms linear 280ms both;
+  }
+}
+
+/* ---------- tablet: one column, the plan card first ---------- */
+
+@media (max-width: 1100px) {
+  .pf-grid {
+    grid-template-columns: minmax(0, 560px);
+    row-gap: 32px;
+  }
+  .pf-aside {
+    order: -1;
+    position: static;
+  }
+}
+
+/* ---------- phone (P4) ---------- */
+
+@media (max-width: 640px) {
+  .pf-ico-dt {
+    display: none;
+  }
+  .pf-ico-ph {
+    display: block;
+  }
+
+  /* One screen: progress, step, the compact plan card, the step (it scrolls), then Continue */
+  .pf-page {
+    min-height: 0;
+    height: 100vh;
+    height: 100dvh;
+  }
+  .pf {
+    height: 100%;
+    min-height: 0;
+  }
+  .pf-in,
+  .pf-wrap {
+    height: 100%;
+  }
+  .pf-grid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    row-gap: 0;
+    padding: 49px 0 0;
+  }
+  .pf-col {
+    display: contents;
+  }
+  .pf-segs {
+    order: 1;
+    flex: none;
+  }
+  .pf-bar {
+    order: 2;
+    flex: none;
+    margin-top: 2px;
+    min-height: 44px;
+    gap: 12px;
+  }
+  .pf-back {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+    background: var(--surface-1);
+  }
+  .pf-back svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-back-txt {
+    display: none;
+  }
+  .pf-steplabel {
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--soft);
+  }
+  .pf-close {
+    top: 54px;
+    right: 16px;
+  }
+
+  .pf-aside {
+    order: 3;
+    flex: none;
+    margin-top: 8px;
+  }
+  /* 106 tall (P4), or 200 once sent. A minimum rather than a fixed height: when the answers' chips don't fit on one
+     row (a narrow phone, or a long month), they wrap and the card grows instead of clipping the last chip */
+  .pf-card {
+    min-height: 106px;
+    padding: 14px 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .pf-card.is-done {
+    min-height: 200px;
+  }
+  .pf-card-k {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .pf-card-name {
+    flex: none;
+    margin-top: 4px;
+    height: 32px;
+    font-size: 28px;
+    line-height: 32px;
+  }
+  .pf-card-chips {
+    margin-top: 6px;
+    gap: 6px;
+  }
+  .pf-chip {
+    height: 22px;
+    padding: 0 5px;
+    font-size: 11px;
+    line-height: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pf-card-done {
+    margin-top: 12px;
+    padding-top: 10px;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .pf-form {
+    order: 4;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pf-region {
+    flex: 1 1 auto;
+    min-height: 160px;
+    margin-inline: -16px;
+    padding: 0 16px 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .pf-region::-webkit-scrollbar {
+    display: none;
+  }
+  .pf-step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .pf .pf-step > * {
+    margin-top: 0;
+  }
+  .pf-foot {
+    flex: none;
+    padding-bottom: 44px;
+  }
+  /* The keyboard is up: Continue sits 12px above it and the reassurance hides */
+  .pf-foot.is-kb {
+    padding-bottom: calc(var(--pf-kb, 0px) + 12px);
+  }
+  .pf-foot.is-kb .pf-reassure {
+    display: none;
+  }
+  .pf-go {
+    margin-top: 12px;
+  }
+  .pf-reassure {
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 14px;
+  }
+
+  .pf-h {
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .pf-sub {
+    margin-top: 8px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .pf-fields {
+    gap: 12px;
+  }
+  .pf-fields--loose {
+    gap: 16px;
+  }
+  .pf-field--rule {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .pf-label {
+    margin-bottom: 4px;
+  }
+  /* On the phone the input itself turns cream, and the message carries the rule */
+  .pf .fld[aria-invalid="true"]:not(:focus-within) {
+    border-color: var(--cream);
+  }
+  .pf .fld:focus,
+  .pf .fld:focus-visible,
+  .pf .fld:focus-within {
+    outline: 2px solid var(--gold);
+    outline-offset: -2px;
+  }
+  .pf-err {
+    padding-left: 10px;
+    border-left: 2px solid var(--cream);
+    line-height: 20px;
+  }
+  .pf-alert {
+    padding-left: 10px;
+    line-height: 20px;
+  }
+  .pf-echo {
+    margin-top: 16px;
+  }
+
+  .pf-why {
+    border-top: 0;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pf-why-k,
+  .pf-why-only {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .pf-why-t,
+  .pf-why-only {
+    margin-top: 0;
+    text-wrap: pretty;
+  }
+
+  .pf-chips .chipb {
+    padding: 0 16px;
+    font-size: 15px;
+  }
+  .pf-date .fld {
+    max-width: none;
+  }
+
+  .pf-menu {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .pf-add svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-skip {
+    align-self: center;
+    padding: 0 16px;
+  }
+  .pf-file {
+    flex-wrap: nowrap;
+    min-height: 56px;
+    padding: 0 8px 0 16px;
+    border-radius: 12px;
+    background: var(--surface-1);
+    font-size: 15px;
+    line-height: 20px;
+  }
+  .pf-file-doc {
+    flex: none;
+  }
+  .pf-file-name {
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pf-change {
+    flex: none;
+    height: 44px;
+    padding: 0 10px;
+    font-size: 15px;
+  }
+
+  .pf-goals {
+    gap: 8px;
+  }
+  .pf-goal {
+    padding: 0 16px 0 20px;
+    line-height: 20px;
+    border-color: transparent;
+  }
+  .pf-goal-ind {
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1.75px solid var(--outline);
+    border-radius: 999px;
+    color: var(--night);
+  }
+  .pf-goal[aria-pressed="true"] .pf-goal-ind {
+    border-color: var(--gold);
+    background: var(--gold);
+  }
+  .pf-goal-ind svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.25;
+  }
+
+  textarea.fld.pf-notes {
+    resize: none;
+  }
+  .pf-at {
+    color: var(--soft);
+  }
+
+  .pf-fs {
+    margin: 0;
+  }
+  .pf-fs + .pf-fs {
+    margin-top: 0;
+  }
+  .pf-legend {
+    margin-bottom: 8px;
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 20px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--soft);
+  }
+  .pf-slots--days {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pf-slots--times {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pf-day {
+    min-height: 52px;
+    padding: 0 12px;
+  }
+  .pf-time {
+    padding: 0 12px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  /* The switch row, full width, the switch on the right (P4 315–318) */
+  .pf-switch {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    min-height: 56px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: var(--surface-1);
+    font-size: 16px;
+    line-height: 22px;
+  }
+  .pf-switch input {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    width: 44px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--outline);
+  }
+  .pf-switch input::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--cream);
+  }
+  .pf-switch input:checked {
+    background: var(--gold);
+  }
+  .pf-switch input:checked::before {
+    background: var(--night);
+    transform: translateX(16px);
+  }
+
+  .pf-done {
+    order: 4;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 24px -16px 0;
+    padding: 0 16px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    scrollbar-width: none;
+  }
+  .pf-done-h {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .pf-done-p {
+    font-size: 17px;
+    line-height: 24px;
+  }
+  .pf-done-acts {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .pf-done-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+  .pf-done-note {
+    margin-top: 8px;
+    text-align: center;
+  }
+  .pf-done-back {
+    align-self: center;
+    margin-top: 20px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  :root[data-motion="on"] .pf-card {
+    transition: min-height 280ms var(--ease);
+  }
+  :root[data-motion="on"] .pf-switch input::before {
+    transition: transform 150ms var(--ease);
+  }
+}

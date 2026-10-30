@@ -1,9 +1,10 @@
 import { booking, choices, upload } from "@/lib/config";
 import { googleCalendarLink, icsFile } from "@/lib/calendar";
-import { formatDay, londonToUtc, longDate, offeredDates } from "@/lib/dates";
+import { daysBetween, formatDay, isYmd, londonToUtc, londonToday, longDate, offeredDates, OPENING_MAX_DAYS, shortDay } from "@/lib/dates";
 import { sendBookingEmails } from "@/lib/email";
 import { json, limited, oops } from "@/lib/guard";
 import { createRequest, fileLinks, filesExist, SlotTakenError, storeReady } from "@/lib/store";
+import { emailOk, parsePostcode, phoneOk } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -22,27 +23,41 @@ export async function POST(req: Request) {
   if (str(b.website, 200)) return json({ ok: true, id: "thanks" });
 
   const restaurant = str(b.restaurant, 120);
+  // Stored as "SW1A 1AA" however it was typed (with or without its space)
+  const pc = parsePostcode(str(b.postcode, 12));
+  const postcode = pc.valid ? pc.full : str(b.postcode, 12).toUpperCase();
   const picked = Array.isArray(b.cuisines) ? b.cuisines.filter((c): c is string => choices.cuisines.includes(c as string)) : [];
   // "Something else" is swapped for what they typed, when they typed something
   const other = str(b.cuisineOther, 60);
   const cuisines = picked.map((c) => (c === "Something else" && other ? other : c));
+  // A picked opening date is stored with its day written out, when it is still to come (and not absurdly far off).
+  // Otherwise the chip answer stands: the form sends "We’re already open" for a date today or earlier.
+  const od = str(b.openingDate, 10);
+  const ahead = isYmd(od) ? daysBetween(londonToday(), od) : -1;
+  const opening = isYmd(od) && ahead >= 1 && ahead <= OPENING_MAX_DAYS ? `${od} (${longDate(od)})` : oneOf(b.opening, choices.opening);
+  const goal = oneOf(b.goal, choices.goals);
   const files = Array.isArray(b.files) ? b.files.filter((f): f is string => typeof f === "string" && FILE_PATH.test(f)).slice(0, upload.maxFiles) : [];
   const name = str(b.name, 80);
   const email = str(b.email, 160).toLowerCase();
   const whatsapp = str(b.whatsapp, 30);
+  const wa = b.whatsappFirst === true;
   const date = str(b.date, 10);
   const time = oneOf(b.time, booking.times);
-  const how = oneOf(b.how, choices.how) || "Video";
+  // The form no longer asks how to hold the call: we phone on the number given
+  const how = booking.callHow;
 
   // Someone who loaded the times just before midnight still gets the days they were shown
   const allowed = new Set([...offeredDates(), ...offeredDates(new Date(Date.now() - 3 * 3600 * 1000))]);
   const problems: Record<string, string> = {};
-  if (!restaurant) problems.restaurant = "Add your restaurant's name";
-  if (!cuisines.length) problems.cuisines = "Pick at least one";
-  if (!allowed.has(date) || !time) problems.slot = "Pick a day and time";
-  if (!name) problems.name = "Add your name";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) problems.email = "That email doesn't look right";
-  if (!/^\+?[\d\s()-]{7,20}$/.test(whatsapp)) problems.whatsapp = "That number doesn't look right";
+  if (!restaurant) problems.restaurant = "Add the name on your door.";
+  if (!pc.valid) problems.postcode = "Check the postcode. It looks like AB1 2CD.";
+  if (!cuisines.length) problems.cuisines = "Pick at least one.";
+  if (!opening) problems.opening = "Pick when you open. A date in the next two years works.";
+  if (!goal) problems.goal = "Pick what matters most.";
+  if (!allowed.has(date) || !time) problems.slot = "Pick a day and time.";
+  if (!name) problems.name = "Add your name.";
+  if (!emailOk(email)) problems.email = "Check the email address.";
+  if (!phoneOk(whatsapp)) problems.whatsapp = "Check the number, starting 0 or +44.";
   if (Object.keys(problems).length) return oops("Some answers need another look", 400, { problems });
   if (!(await filesExist(files))) return oops("One of your files didn't finish uploading. Try adding it again.", 400);
 
@@ -50,13 +65,13 @@ export async function POST(req: Request) {
   const menuLater = !files.length && b.menuLater === true;
   const row = {
     restaurant,
-    postcode: str(b.postcode, 12).toUpperCase(),
+    postcode,
     cuisines,
-    opening: oneOf(b.opening, choices.opening),
+    opening,
     menu_files: files,
     menu_later: menuLater,
-    goal: oneOf(b.goal, choices.goals),
-    notes: text(b.notes, 3000),
+    goal,
+    notes: [text(b.notes, 3000), `WhatsApp me before the call: ${wa ? "yes" : "no"}`].filter(Boolean).join("\n\n"),
     instagram: str(b.instagram, 60),
     contact_name: name,
     email,
@@ -81,6 +96,7 @@ export async function POST(req: Request) {
   const callText = `${longDate(date)} at ${time}`;
   const callShort = `${formatDay(date, { weekday: "short", day: "numeric", month: "short" })} ${time}`;
   const event = { id, start, how, restaurant, phone: whatsapp };
+  const ics = icsFile(event);
   try {
     await sendBookingEmails({
       id,
@@ -92,21 +108,22 @@ export async function POST(req: Request) {
       callText,
       callShort,
       how,
-      ics: icsFile(event),
+      ics,
       files: await fileLinks(files),
       answers: [
         ["Restaurant", restaurant],
         ["Postcode", row.postcode],
-        ["Cooking", cuisines.join(", ")],
+        ["Food", cuisines.join(", ")],
         ["Opening", row.opening],
-        ["Menu", files.length ? `${files.length} file${files.length > 1 ? "s" : ""}` : menuLater ? "Will WhatsApp it later" : "None"],
+        ["Menu", files.length ? `${files.length} file${files.length > 1 ? "s" : ""}` : menuLater ? "Skipped for now" : "None"],
         ["Goal", row.goal],
         ["Notes", row.notes],
         ["Instagram", row.instagram],
         ["Name", name],
         ["Email", email],
-        ["WhatsApp", whatsapp],
-        ["Call", `${callText}, ${how.toLowerCase()}`],
+        ["Phone", whatsapp],
+        ["WhatsApp first", wa ? "Yes" : "No"],
+        ["Call", `${callText}, phone`],
         ["Came from", row.ref],
       ],
     });
@@ -115,5 +132,13 @@ export async function POST(req: Request) {
     console.error(e);
   }
 
-  return json({ ok: true, id, callText, how, calendar: googleCalendarLink(event) });
+  return json({
+    ok: true,
+    id,
+    callText,
+    when: `${shortDay(date)}, ${time}`,
+    how,
+    calendar: googleCalendarLink(event),
+    ics,
+  });
 }

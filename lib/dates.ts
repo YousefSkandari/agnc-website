@@ -28,6 +28,9 @@ export function addDays(d: Ymd, n: number): Ymd {
   return `${t.getUTCFullYear()}-${pad(t.getUTCMonth() + 1)}-${pad(t.getUTCDate())}`;
 }
 
+// How far ahead an opening date may be (the form, the d4 calendar and /api/submit all use it)
+export const OPENING_MAX_DAYS = 730;
+
 export const weekdayOf = (d: Ymd) => toUtcNoon(d).getUTCDay();
 
 export function daysBetween(a: Ymd, b: Ymd) {
@@ -69,3 +72,23 @@ export function offeredDates(now = new Date()): Ymd[] {
   }
   return out;
 }
+
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+export const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+// A real calendar date written YYYY-MM-DD
+export function isYmd(v: unknown): v is Ymd {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const [y, m, d] = v.split("-").map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d, 12));
+  return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+}
+
+// "Sun 1 Nov"
+export function shortDay(d: Ymd) {
+  const [, m, day] = d.split("-").map(Number);
+  return `${WEEKDAYS[weekdayOf(d)]} ${day} ${MONTHS[m - 1]}`;
+}
+
+// "Nov"
+export const shortMonth = (d: Ymd) => MONTHS[Number(d.split("-")[1]) - 1];

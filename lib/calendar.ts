@@ -4,7 +4,8 @@ export type CallEvent = { id: string; start: Date; how: string; restaurant: stri
 
 const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 const end = (e: CallEvent) => new Date(e.start.getTime() + booking.callMinutes * 60000);
-const title = "Your 30-day launch plan walkthrough with agnc. media";
+// The page calls it the handover call (D 1018, D 1097); the artboard's invite reads the same (D 1973)
+const title = "Your launch plan handover with agnc. media";
 
 function details(e: CallEvent) {
   const how = e.how === "Phone" ? `We'll ring you on ${e.phone}.` : "We'll send you the video link before the call.";
@@ -30,7 +31,7 @@ export function icsFile(e: CallEvent) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//agnc. media//Walkthrough//EN",
+    "PRODID:-//agnc. media//Handover//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

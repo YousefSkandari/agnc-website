@@ -12,7 +12,11 @@ export const BUCKET = "plan-files";
 const TABLE = "plan_requests";
 
 const onSupabase = () => !!(SB_URL && SB_KEY);
-const local = () => !onSupabase() && process.env.NODE_ENV !== "production";
+// The .data/ fallback runs under `next dev`, or under a local `next start` when AGNC_LOCAL_DATA=1 is set (for testing
+// the production build). It never runs on Vercel, where a missing key must return an error rather than lose a request.
+export const local = () =>
+  !onSupabase() &&
+  (process.env.NODE_ENV !== "production" || (process.env.AGNC_LOCAL_DATA === "1" && !process.env.VERCEL));
 export const storeReady = () => onSupabase() || local();
 
 let client: SupabaseClient | null = null;
