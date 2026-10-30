@@ -8,7 +8,6 @@ import { SECTIONS, type SectionId } from "@/lib/sections";
 import { brand } from "@/lib/media";
 import PlanButton, { PLAN_LABEL } from "@/components/ui/PlanButton";
 import { scrollToSection, useActiveSection } from "@/lib/client/sections";
-import MotionSwitch from "./MotionSwitch";
 
 export type HeaderProps = { variant?: "home" | "page" };
 
@@ -35,7 +34,6 @@ export default function Header({ variant = "home" }: HeaderProps) {
             <span className="hdr-desc">SOCIAL MEDIA MARKETING FOR RESTAURANTS</span>
           </div>
           <div className="hdr-right">
-            <MotionSwitch where="header" />
             {home ? (
               <PlanButton size={44} />
             ) : (

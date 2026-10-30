@@ -6,8 +6,8 @@
 
    Motion convention. Anything that moves is written inside
      @media (prefers-reduced-motion: no-preference) { :root[data-motion="on"] .thing { ... } }
-   so it never runs with reduced motion set, nor with the header's MOTION switch off. <html data-motion> is set
-   before paint by lib/motion-script.ts. Scroll-driven effects additionally sit inside
+   so it never runs with reduced motion set. <html data-motion> is set before paint by lib/motion-script.ts.
+   Scroll-driven effects additionally sit inside
      @supports (animation-timeline: view()) { ... }
    and the page must read correctly with none of it. */
 

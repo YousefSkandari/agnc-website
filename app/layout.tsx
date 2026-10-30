@@ -7,7 +7,7 @@ import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/Providers";
 import { site } from "@/lib/config";
 import { heroReel } from "@/lib/media";
-import { MOTION_SCRIPT, SWITCH_SCRIPT } from "@/lib/motion-script";
+import { MOTION_SCRIPT } from "@/lib/motion-script";
 
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif" });
 // Inter is a variable font: one file covers the 400, 500 and 600 weights the design uses. (Listing the weights makes
@@ -54,7 +54,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Providers>{children}</Providers>
-        <script dangerouslySetInnerHTML={{ __html: SWITCH_SCRIPT }} />
       </body>
     </html>
   );

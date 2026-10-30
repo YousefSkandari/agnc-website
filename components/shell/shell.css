@@ -6,55 +6,8 @@
    @media (prefers-reduced-motion: no-preference) { :root[data-motion="on"] ... }, scroll-driven effects also inside
    @supports (animation-timeline: view()). */
 
-/* ============ MOTION switch (D 185–187, 741–743) ============ */
+/* ============ Motion ============ */
 
-.mo-switch {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding-inline: 4px;
-  cursor: pointer;
-}
-.mo-switch input {
-  flex: none;
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--gold);
-  cursor: pointer;
-}
-.mo-switch-menu {
-  margin-top: 24px;
-  gap: 12px;
-  padding-inline: 0;
-}
-.mo-switch-menu input {
-  width: 20px;
-  height: 20px;
-}
-.mo-text {
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--cream);
-  white-space: nowrap;
-}
-/* Both words are in the HTML; html[data-motion] picks one before the first paint. They share one grid cell, so the
-   switch is always as wide as "OFF" and nothing moves when it is flipped. */
-.mo-word {
-  display: inline-grid;
-}
-.mo-on,
-.mo-off {
-  grid-area: 1 / 1;
-}
-:root[data-motion="on"] .mo-off,
-:root:not([data-motion="on"]) .mo-on {
-  visibility: hidden;
-}
 /* Controls whose state depends on the motion setting before hydration (the hero's pause button and chip) */
 :root:not([data-motion="on"]) .mo-only-on,
 :root[data-motion="on"] .mo-only-off {
@@ -235,7 +188,7 @@
   outline-offset: -2px;
 }
 .menu-pill.pill {
-  margin-top: 16px;
+  margin-top: 24px;
   width: 100%;
 }
 
@@ -1991,8 +1944,7 @@
   .hdr-home {
     display: none !important;
   }
-  .hdr-page .hdr-nav,
-  .hdr-page .mo-switch {
+  .hdr-page .hdr-nav {
     display: none;
   }
   .bbar {

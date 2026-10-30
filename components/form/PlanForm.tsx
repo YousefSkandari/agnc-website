@@ -183,9 +183,9 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
   const overlay = mode === "overlay";
   const { pushStep, popStep, onBack } = useOverlay();
   const { opening, setOpeningDate, setOpeningKind, clearOpening } = useOpening();
-  const [motionSwitch] = useMotion();
+  const motionOn = useMotion();
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const motion = motionSwitch && !reduced;
+  const motion = motionOn && !reduced;
   const coarse = useCoarsePointer();
   const phone = usePhone();
   // The overlay's form only ever renders in the browser, so it can read today straight away; /plan waits for mount
