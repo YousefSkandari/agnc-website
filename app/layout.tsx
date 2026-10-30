@@ -2,12 +2,14 @@ import "./globals.css";
 import "@/components/shell/shell.css";
 import "@/components/offer/offer.css";
 import "@/components/form/form.css";
+import "@/components/shell/loader.css";
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/Providers";
 import { site } from "@/lib/config";
 import { heroReel } from "@/lib/media";
 import { MOTION_SCRIPT } from "@/lib/motion-script";
+import { LOADER_HEAD } from "@/lib/loader";
 
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif" });
 // Inter is a variable font: one file covers the 400, 500 and 600 weights the design uses. (Listing the weights makes
@@ -47,10 +49,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // data-motion is set by the head script before hydration, hence suppressHydrationWarning on <html> only
+    // data-motion and data-loader are set by the head scripts before hydration, hence suppressHydrationWarning on <html> only
     <html lang="en-GB" className={`${serif.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: MOTION_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: LOADER_HEAD }} />
       </head>
       <body>
         <Providers>{children}</Providers>

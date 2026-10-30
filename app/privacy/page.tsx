@@ -50,7 +50,7 @@ export default function Privacy() {
           <li>the reference from our letter, if you followed its link or QR code, so we know which mailing reached you;</li>
           <li>the opening day you try in the example calendar, which is also the form&apos;s answer for when you open.</li>
         </ul>
-        <p>All three are cleared once you send the form.</p>
+        <p>All three are cleared once you send the form. Your browser also keeps a note for each visit, so our loading screen plays at most once. That note never leaves your device and is gone when you close the tab.</p>
 
         <h2>Your rights</h2>
         <p>You can ask for a copy of what we hold about you, ask us to correct or delete it, ask us to stop using it, or object to us contacting you. Just email {site.email}. We&apos;ll reply within a month.</p>
