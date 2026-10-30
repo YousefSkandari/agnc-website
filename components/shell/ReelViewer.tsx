@@ -579,7 +579,7 @@ export default function ReelViewer() {
   const open = state.kind === "reels";
   const start = state.kind === "reels" ? state.start : 0;
   const phone = usePhone();
-  const [motion] = useMotion();
+  const motion = useMotion();
   const saveData = useSaveData();
   const ref = useModalDialog(open, close, { focusSelf: true });
 
@@ -653,7 +653,7 @@ export default function ReelViewer() {
   // The next post preloads 2s after this one opens, never under Save-Data (D 1655–1660)
   useEffect(() => {
     setNextPreload("none");
-    // Nor with autoplay off (reduced motion or the MOTION switch): it exists only so the next autoplay starts at once
+    // Nor with autoplay off (reduced motion or Save-Data): it exists only so the next autoplay starts at once
     if (!open || saveData || !cur.autoplay) return;
     const t = window.setTimeout(() => setNextPreload("auto"), 2000);
     return () => window.clearTimeout(t);

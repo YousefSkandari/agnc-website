@@ -14,11 +14,11 @@ Built with Next.js 14 (app router), Supabase for requests and files, and Resend 
   - **d7, Nes & Gaby**.
   - **d8, Your plan**: the last call to action.
 
-  Around them: the two-row header with the section nav and the MOTION switch, the footer, and on the phone a bottom bar (shown once the hero's button has scrolled away) with the sections menu. The menu sheet, the reel viewer and the plan form are overlays: only one is open at a time, the browser's back button closes the top one, and the bottom bar hides while any of them is open.
+  Around them: the two-row header with the section nav, the footer, and on the phone a bottom bar (shown once the hero's button has scrolled away) with the sections menu. The menu sheet, the reel viewer and the plan form are overlays: only one is open at a time, the browser's back button closes the top one, and the bottom bar hides while any of them is open.
 
   Every plan button on the page (header, d1, d4, d5, d8, the menu sheet, the bottom bar and the reel viewer) opens the plan form over the page; on `/privacy` it goes to `/plan`. The opening day picked in d4 and at the form's step 3 is the same answer: change one and the other follows. The third date in d5 is the first day the form offers for the call.
 
-  Motion: videos play muted, one at a time, and only while on screen. Anyone with reduced motion turned on, or who turns the MOTION switch off, gets no autoplay and no animation, and every video stops; the play buttons still work. With Save-Data on, nothing autoplays either.
+  Motion: videos play muted, one at a time, and only while on screen. Anyone with reduced motion turned on in their device settings gets no autoplay and no animation, and every video stops; the play buttons still work. With Save-Data on, nothing autoplays either.
 - `/plan` is the same form as a page, for direct links to the form only. It opens straight on step 1 and never says what agnc. is, so letters and QR codes go to the home page instead, with a ref (`https://…/?ref=letter-oct`): its first screen says who we are. The form has 8 short steps:
   1. What's the name on the door? (restaurant name and postcode);
   2. What do you serve? (cuisines, or "Something else");

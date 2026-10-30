@@ -9,7 +9,6 @@ import { SECTIONS, type SectionId } from "@/lib/sections";
 import { brand } from "@/lib/media";
 import { IconClose } from "@/components/ui/icons";
 import PlanButton from "@/components/ui/PlanButton";
-import MotionSwitch from "./MotionSwitch";
 
 // Closing the sheet unwinds its history entry. Some browsers restore the old scroll position when that traversal
 // lands, so the section scroll waits for it (or a short timeout if there was no entry to unwind).
@@ -69,7 +68,6 @@ export default function MenuSheet() {
               </a>
             ))}
           </nav>
-          <MotionSwitch where="menu" />
           <PlanButton className="menu-pill" />
         </>
       )}

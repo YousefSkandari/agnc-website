@@ -2,7 +2,7 @@
 
 // The plan form overlay (D 884–887, D 1874–1895).
 // With motion on and a pill to grow from, the dialog grows out of the pill's rect (a clip-path, 280ms) and the form
-// fades in after it (D .cin). Otherwise it simply appears: no animation at all with reduced motion or MOTION off.
+// fades in after it (D .cin). Otherwise it simply appears: no animation at all with reduced motion.
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useMediaQuery } from "@/lib/client/device";
 import { useModalDialog } from "@/lib/client/dialog";
@@ -21,7 +21,7 @@ export default function PlanOverlay() {
   const { state, close } = useOverlay();
   const open = state.kind === "form";
   const ref = useModalDialog(open, close);
-  const [motionOn] = useMotion();
+  const motionOn = useMotion();
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [entry, setEntry] = useState<Entry>(REST);
 

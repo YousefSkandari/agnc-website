@@ -44,14 +44,13 @@ export default function Privacy() {
         <p>Some of these companies may handle data outside the UK. Where they do, they are bound by UK-approved safeguards such as the International Data Transfer Addendum. We never sell your details.</p>
 
         <h2>On this website</h2>
-        <p>We don&apos;t use tracking or advertising cookies. A few things are saved on your own device. Only the first three ever reach us, and only if you send the form:</p>
+        <p>We don&apos;t use tracking or advertising cookies. A few things are saved on your own device. They only reach us if you send the form:</p>
         <ul>
           <li>your answers while you fill in the form, so you can pick up where you left off;</li>
           <li>the reference from our letter, if you followed its link or QR code, so we know which mailing reached you;</li>
-          <li>the opening day you try in the example calendar, which is also the form&apos;s answer for when you open;</li>
-          <li>whether you&apos;ve turned motion off.</li>
+          <li>the opening day you try in the example calendar, which is also the form&apos;s answer for when you open.</li>
         </ul>
-        <p>The first three are cleared once you send the form. The motion setting stays until you clear your browser&apos;s data for this site.</p>
+        <p>All three are cleared once you send the form.</p>
 
         <h2>Your rights</h2>
         <p>You can ask for a copy of what we hold about you, ask us to correct or delete it, ask us to stop using it, or object to us contacting you. Just email {site.email}. We&apos;ll reply within a month.</p>

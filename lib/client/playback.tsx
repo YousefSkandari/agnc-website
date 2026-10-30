@@ -51,7 +51,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const longest = useRef<number | null>(null);
   const [stop, setStop] = useState<Stop | null>(null);
   const io = useRef<IntersectionObserver | null>(null);
-  const [motion] = useMotion();
+  const motion = useMotion();
 
   const endStop = useCallback((e: Entry) => {
     if (e.start === null) return;
@@ -269,7 +269,7 @@ export type ManagedVideo = {
 export function useManagedVideo(key: string, { active = false, postId = null, onProgress }: ManagedVideoOptions = {}): ManagedVideo {
   const ctx = usePlaybackCtx();
   const { register, unregister, setPostId, play: ctxPlay } = ctx;
-  const [motion] = useMotion();
+  const motion = useMotion();
   const saveData = useSaveData();
   const autoplay = motion && !saveData;
   const [element, setElement] = useState<HTMLVideoElement | null>(null);

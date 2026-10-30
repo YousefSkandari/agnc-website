@@ -71,7 +71,7 @@ function PhotoFig({ photo, caption, cls }: { photo: Photo; caption: string; cls:
 export default function ThePosts() {
   const ref = useSectionRef("d2");
   const { state, openReels } = useOverlay();
-  const [motion] = useMotion();
+  const motion = useMotion();
   const saveData = useSaveData();
   const canHover = useCanHover();
   const phone = usePhone();
