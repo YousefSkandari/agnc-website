@@ -20,7 +20,7 @@ export const LOADER_HEAD = `(function(){try{var d=document.documentElement;if(d.
 // finishes lighting (the shutter then lifts at 1.45s, as on the design) and a 3.2s cap. The caption waits for its
 // own font so it never swaps typeface on screen. If "go" would land after 3.7s the CSS failsafe is already under
 // way, so it is left to finish and "done" follows at 5.4s. Tab lifts it at once, so keyboard focus is never hidden
-// under it. Each step only moves forward from the state it expects: if React ever re-creates <html> (a hydration
+// under it (heard on window, in the capture phase: while React hydrates it stops key events at the document). Each step only moves forward from the state it expects: if React ever re-creates <html> (a hydration
 // error), the attribute is gone and nothing brings the loader back.
 export function loaderRun(poster: string): string {
   return `(function(){var d=document.documentElement;if(d.dataset.loader!=="on")return;try{
@@ -30,7 +30,7 @@ var fin=function(){var s=d.dataset.loader;if(s==="on"||s==="go")d.dataset.loader
 var fire=function(){if(d.dataset.loader!=="on")return;var e=el();if(e>=LATE){setTimeout(fin,Math.max(0,END-e));return}d.dataset.loader="go";setTimeout(fin,1500)};
 var ready=function(){if(went)return;went=1;setTimeout(fire,Math.max(0,MIN-el()))};
 setTimeout(ready,CAP);
-document.addEventListener("keydown",function(e){if(e.key==="Tab"&&d.dataset.loader==="on"){went=1;fire()}});
+addEventListener("keydown",function(e){if(e.key==="Tab"&&d.dataset.loader==="on"){went=1;fire()}},true);
 var l=document.currentScript&&document.currentScript.parentNode,stop=function(e){e.preventDefault()};
 if(l){l.addEventListener("wheel",stop,{passive:false});l.addEventListener("touchmove",stop,{passive:false})}
 var cs=getComputedStyle(d),fam=function(v){return cs.getPropertyValue(v).split(",")[0].trim()},F=document.fonts;
