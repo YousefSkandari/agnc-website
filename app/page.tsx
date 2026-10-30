@@ -1,9 +1,11 @@
 // The home page, top to bottom: d1 What we do, d2 The posts, d4 Thirty days, d5 How it works, d7 Nes & Gaby, d8 Your
-// plan. The menu sheet, reel viewer and plan form are overlays (lib/client/overlay.tsx), one open at a time.
+// plan. The menu sheet, reel viewer and plan form are overlays (lib/client/overlay.tsx), one open at a time. The
+// loading screen comes first on a first visit (components/shell/Loader.tsx).
 //   components/shell: the header, d1, d2, d7, d8, footer, phone bottom bar, menu sheet and reel viewer
 //   components/offer: d4 and d5
 //   components/form: the plan form (also /plan)
 import Footer from "@/components/shell/Footer";
+import Loader from "@/components/shell/Loader";
 import Header from "@/components/shell/Header";
 import WhatWeDo from "@/components/shell/WhatWeDo";
 import ThePosts from "@/components/shell/ThePosts";
@@ -22,6 +24,7 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 export default function Home() {
   return (
     <>
+      <Loader />
       <a className="skip" href="#main">
         Skip to the page
       </a>

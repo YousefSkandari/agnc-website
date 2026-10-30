@@ -10,6 +10,7 @@ import { useSectionRef } from "@/lib/client/sections";
 import { useOverlay } from "@/lib/client/overlay";
 import { useManagedVideo } from "@/lib/client/playback";
 import { useMounted, useSaveData } from "@/lib/client/device";
+import { useLoaderCovering } from "@/lib/client/loader";
 import { brand, heroReel } from "@/lib/media";
 import { client } from "@/lib/config";
 import { clientInstagramHref } from "@/lib/links";
@@ -31,8 +32,10 @@ export default function WhatWeDo() {
   const [live, setLive] = useState(false);
 
   const onProgress = useCallback((p: number) => setFill(fillRef.current, p), []);
+  // On a first visit the post waits for the loading screen to lift, so it plays from the start as the page appears
+  const covered = useLoaderCovering();
   const hero = useManagedVideo("hero", {
-    active: state.kind === "none" && onScreen,
+    active: state.kind === "none" && onScreen && !covered,
     postId: "opening",
     onProgress,
   });
@@ -62,7 +65,7 @@ export default function WhatWeDo() {
 
   return (
     <section id="d1" ref={sectionRef} className="d1sec" aria-label="What we do">
-      <img className="dt-only d1-outline" src={brand.outline.src} alt="" aria-hidden="true" width={1360} height={321} />
+      <img className="dt-only d1-outline" src={brand.outline.src} alt="" aria-hidden="true" width={1360} height={246} />
       <div className="wrap d1-wrap">
         <div className="d1">
           <div className="d1-left">

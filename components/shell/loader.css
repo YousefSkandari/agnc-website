@@ -1,0 +1,282 @@
+/* "Lights on", the first-visit loading screen (components/shell/Loader.tsx; timing and states in lib/loader.ts).
+   The wordmark lights up like a shop sign, then the loader lifts like a shutter and the hero rises in. Copied from
+   the design canvas (Loader-1-lights-on): the outline draws on 100–660ms and flickers, the letters flicker on from
+   860ms, the caption rises at 940ms, the ribs and gold rail show just before the lift (1.45s at the earliest, 600ms)
+   and the hero rises 250ms after the lift starts, in steps of 70ms.
+   Everything here sits inside prefers-reduced-motion: no-preference, and the loader only shows with
+   <html data-loader="on"> (waiting) or "go" (lifting). The sign's own animations are the same in both states, so the
+   switch never restarts them; the ribs, rail, lift and rises use separate keyframes per state, so the switch does
+   restart those, from the "go" timings instead of the failsafe ones. */
+
+.ldr {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The page underneath stays put while the loader covers it (keys, the scrollbar; lib/loader.ts stops the wheel and
+     touch on the loader itself). scrollbar-gutter: stable on <html> keeps the width the same either side. */
+  :root[data-loader="on"]:has(.ldr) {
+    overflow: hidden;
+  }
+  :root:is([data-loader="on"], [data-loader="go"]) .ldr {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--night);
+    touch-action: none;
+    animation: ldr-lift 600ms cubic-bezier(0.7, 0, 0.2, 1) 4020ms both;
+  }
+  /* Taps on the part still down land on it, so nothing is pressed through the shutter as it lifts */
+  :root[data-loader="go"] .ldr {
+    animation: ldr-lift-go 600ms cubic-bezier(0.7, 0, 0.2, 1) 140ms both;
+  }
+
+  /* The shutter's slats and its gold bottom rail, which show as it starts to lift */
+  .ldr-ribs {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0 13px, rgba(243, 238, 228, 0.045) 13px 14px);
+    opacity: 0;
+    animation: ldr-show 240ms linear 3880ms both;
+  }
+  .ldr-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--gold);
+    opacity: 0;
+    animation: ldr-show 160ms linear 3920ms both;
+  }
+  :root[data-loader="go"] .ldr-ribs {
+    animation: ldr-show-go 240ms linear both;
+  }
+  :root[data-loader="go"] .ldr-rail {
+    animation: ldr-show-go 160ms linear 40ms both;
+  }
+
+  /* The sign */
+  .ldr-sign {
+    position: relative;
+    width: 280px;
+  }
+  .ldr-sign svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .ldr-u,
+  .ldr-o {
+    position: absolute;
+    left: 0;
+    top: 0;
+    aspect-ratio: 1591 / 288;
+    fill: none;
+    stroke-width: 1.1px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .ldr-u {
+    stroke: rgba(243, 238, 228, 0.14);
+  }
+  .ldr-o {
+    stroke: var(--gold);
+    clip-path: inset(-2px 100% -2px -2px);
+    animation:
+      ldr-wipe 560ms cubic-bezier(0.45, 0, 0.25, 1) 100ms both,
+      ldr-flick 260ms steps(1, end) 660ms both,
+      ldr-gone 240ms linear 960ms forwards;
+  }
+  .ldr-f {
+    aspect-ratio: 1591 / 375;
+    fill: var(--cream);
+    fill-rule: evenodd;
+    opacity: 0;
+    animation: ldr-on 300ms steps(1, end) 860ms both;
+  }
+
+  /* The caption rises at 940ms, or as soon as its font has loaded after that (lib/loader.ts sets the delay) */
+  .ldr-cap {
+    margin-top: 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--soft);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  :root[data-loader-cap] .ldr-cap {
+    opacity: 1;
+    transform: none;
+    animation: ldr-cap 420ms var(--ease) var(--ldr-cap, 0ms) both;
+  }
+
+  /* The hairline fills most of the way while the page loads and breathes if it has to wait; "go" finishes it */
+  .ldr-hair {
+    width: 120px;
+    height: 1px;
+    margin-top: 20px;
+    background: rgba(243, 238, 228, 0.16);
+    overflow: hidden;
+  }
+  .ldr-hair i {
+    display: block;
+    height: 1px;
+    background: var(--gold);
+    transform-origin: left center;
+    animation:
+      ldr-hair 1400ms cubic-bezier(0.3, 0.1, 0.3, 1) both,
+      ldr-breathe 900ms ease-in-out 1400ms infinite alternate;
+  }
+  :root[data-loader="go"] .ldr-hair i {
+    animation: ldr-hair-go 200ms var(--ease) both;
+  }
+
+  @media (min-width: 641px) {
+    .ldr-sign {
+      width: 520px;
+    }
+    .ldr-cap {
+      margin-top: 40px;
+      font-size: 12px;
+      line-height: 16px;
+    }
+    .ldr-hair {
+      width: 160px;
+      margin-top: 24px;
+    }
+  }
+
+  /* The hero rises in behind the shutter: header, kicker, headline, line, pill, small print, proof. On the phone the
+     post's logo plate, caption and pause button too, and the headline's two plates one after the other. On desktop the
+     headline rises as one: its lines are plain text there, which can't move on their own without changing where they
+     break. The desktop post card stays put: the shutter uncovers it. */
+  :root[data-motion="on"][data-loader="on"]
+    :is(.hdr-logo, .hdr-desc, .hdr-right, .hdr-nav, .d1-phlogo, .d1-phcap, .d1-kick, .d1-h1, .d1-line, .d1-pillwrap, .d1-free, .d1-proof) {
+    animation: ldr-rise 480ms var(--ease) calc(4270ms + var(--ldr-st, 0ms)) both;
+  }
+  :root[data-motion="on"][data-loader="go"]
+    :is(.hdr-logo, .hdr-desc, .hdr-right, .hdr-nav, .d1-phlogo, .d1-phcap, .d1-kick, .d1-h1, .d1-line, .d1-pillwrap, .d1-free, .d1-proof) {
+    animation: ldr-rise-go 480ms var(--ease) calc(390ms + var(--ldr-st, 0ms)) both;
+  }
+  .hdr-desc,
+  .hdr-right,
+  .d1-phcap,
+  .d1-pause {
+    --ldr-st: 70ms;
+  }
+  .hdr-nav,
+  .d1-kick {
+    --ldr-st: 140ms;
+  }
+  .d1-h1,
+  .d1-pl1 {
+    --ldr-st: 210ms;
+  }
+  .d1-pl2 {
+    --ldr-st: 280ms;
+  }
+  .d1-line {
+    --ldr-st: 350ms;
+  }
+  .d1-pillwrap {
+    --ldr-st: 420ms;
+  }
+  .d1-free,
+  .d1-proof {
+    --ldr-st: 490ms;
+  }
+  /* Once it is done the hero's own headline rise (shell.css) stays off, so nothing replays */
+  :root[data-motion][data-loader="done"] .d1-h1 {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 640px) {
+  :root[data-motion="on"][data-loader="on"] .d1-h1,
+  :root[data-motion="on"][data-loader="go"] .d1-h1 {
+    animation: none;
+  }
+  :root[data-motion="on"][data-loader="on"] .d1-pause,
+  :root[data-motion="on"][data-loader="on"] .d1-h1 .d1-pl1,
+  :root[data-motion="on"][data-loader="on"] .d1-h1 .d1-pl2 {
+    animation: ldr-rise 480ms var(--ease) calc(4270ms + var(--ldr-st, 0ms)) both;
+  }
+  :root[data-motion="on"][data-loader="go"] .d1-pause,
+  :root[data-motion="on"][data-loader="go"] .d1-h1 .d1-pl1,
+  :root[data-motion="on"][data-loader="go"] .d1-h1 .d1-pl2 {
+    animation: ldr-rise-go 480ms var(--ease) calc(390ms + var(--ldr-st, 0ms)) both;
+  }
+}
+
+/* Each pair has the same frames under two names, so moving from "on" to "go" starts the second one afresh */
+@keyframes ldr-lift {
+  from { transform: none; }
+  to { transform: translateY(-100%); visibility: hidden; }
+}
+@keyframes ldr-lift-go {
+  from { transform: none; }
+  to { transform: translateY(-100%); visibility: hidden; }
+}
+@keyframes ldr-show {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ldr-show-go {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* The rises end on each element's own opacity and transform */
+@keyframes ldr-rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes ldr-rise-go {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes ldr-cap {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes ldr-wipe {
+  from { clip-path: inset(-2px 100% -2px -2px); }
+  to { clip-path: inset(-2px); }
+}
+@keyframes ldr-flick {
+  0% { opacity: 1; }
+  15% { opacity: 0.2; }
+  30% { opacity: 1; }
+  55% { opacity: 0.35; }
+  70% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes ldr-gone {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes ldr-on {
+  0% { opacity: 0; }
+  20% { opacity: 0.7; }
+  40% { opacity: 0.15; }
+  60% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes ldr-hair {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(0.85); }
+}
+@keyframes ldr-hair-go {
+  from { transform: scaleX(0.85); }
+  to { transform: scaleX(1); }
+}
+@keyframes ldr-breathe {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
