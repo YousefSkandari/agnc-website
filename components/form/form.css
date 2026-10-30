@@ -1,6 +1,6 @@
-/* PACKAGE C: the plan form, in the overlay and on /plan (PORT-PLAN 1.12).
+/* The plan form, in the overlay and on /plan.
    Desktop and tablet from B-desktop (D 884–1108); at 640px and below the phone screen B-phone-4 (P4).
-   Class prefix owned by C: .pf. D's .g-form / .g-form-aside are .pf-grid / .pf-aside here (C1). */
+   Class prefix: .pf. The artboard's .g-form / .g-form-aside are .pf-grid / .pf-aside here. */
 
 /* ---------- the overlay and the page ---------- */
 
@@ -116,9 +116,6 @@
   font-size: 15px;
   line-height: 20px;
   font-weight: 600;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
   cursor: pointer;
 }
 .pf-back svg {
@@ -163,7 +160,7 @@
   flex-direction: column;
   gap: 20px;
 }
-/* Fields that can be wrong carry a 2px rule on their left, cream when they are (F2) */
+/* Fields that can be wrong carry a 2px rule on their left, cream when they are */
 .pf-field--rule {
   margin-left: -16px;
   padding-left: 14px;
@@ -186,7 +183,7 @@
   text-transform: uppercase;
 }
 /* On desktop the rule marks the field, so the input keeps its hairline (D 909) */
-.pf .fld[aria-invalid="true"]:not(:focus) {
+.pf .fld[aria-invalid="true"]:not(:focus-within) {
   border-color: var(--hairline);
 }
 .pf-err {
@@ -735,7 +732,6 @@ textarea.fld.pf-notes {
     padding: 0;
     border-radius: 999px;
     background: var(--surface-1);
-    text-decoration: none;
   }
   .pf-back svg {
     width: 20px;
@@ -759,15 +755,17 @@ textarea.fld.pf-notes {
     flex: none;
     margin-top: 8px;
   }
+  /* 106 tall (P4), or 200 once sent. A minimum rather than a fixed height: when the answers' chips don't fit on one
+     row (a narrow phone, or a long month), they wrap and the card grows instead of clipping the last chip */
   .pf-card {
-    height: 106px;
+    min-height: 106px;
     padding: 14px 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
   .pf-card.is-done {
-    height: 200px;
+    min-height: 200px;
   }
   .pf-card-k {
     font-size: 11px;
@@ -782,7 +780,6 @@ textarea.fld.pf-notes {
   }
   .pf-card-chips {
     margin-top: 6px;
-    flex-wrap: nowrap;
     gap: 6px;
   }
   .pf-chip {
@@ -832,7 +829,7 @@ textarea.fld.pf-notes {
     flex: none;
     padding-bottom: 44px;
   }
-  /* The keyboard is up: Continue sits 12px above it and the reassurance hides (F14) */
+  /* The keyboard is up: Continue sits 12px above it and the reassurance hides */
   .pf-foot.is-kb {
     padding-bottom: calc(var(--pf-kb, 0px) + 12px);
   }
@@ -872,11 +869,12 @@ textarea.fld.pf-notes {
     margin-bottom: 4px;
   }
   /* On the phone the input itself turns cream, and the message carries the rule */
-  .pf .fld[aria-invalid="true"]:not(:focus) {
+  .pf .fld[aria-invalid="true"]:not(:focus-within) {
     border-color: var(--cream);
   }
   .pf .fld:focus,
-  .pf .fld:focus-visible {
+  .pf .fld:focus-visible,
+  .pf .fld:focus-within {
     outline: 2px solid var(--gold);
     outline-offset: -2px;
   }
@@ -1107,7 +1105,7 @@ textarea.fld.pf-notes {
 
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
   :root[data-motion="on"] .pf-card {
-    transition: height 280ms var(--ease);
+    transition: min-height 280ms var(--ease);
   }
   :root[data-motion="on"] .pf-switch input::before {
     transition: transform 150ms var(--ease);

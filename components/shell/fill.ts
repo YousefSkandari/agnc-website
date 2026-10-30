@@ -1,4 +1,4 @@
-// PACKAGE A, private. Writes a progress fill straight to the element (no re-render). Going backwards (a loop, a new
+// Writes a progress fill straight to the element (no re-render). Going backwards (a loop, a new
 // post) jumps with no transition; going forwards keeps the CSS transition (D 1526–1533).
 const last = new WeakMap<HTMLElement, number>();
 

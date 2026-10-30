@@ -26,7 +26,7 @@ const rowsOf = (d: CalDay): [string, string][] => [
   ["WHY", d.why],
 ];
 
-// Previous and next stay focusable at the ends (aria-disabled, amendment K10), so focus never drops to the page
+// Previous and next stay focusable at the ends (aria-disabled), so focus never drops to the page
 function Controls({ nav }: { nav: BriefNav }) {
   return (
     <div className="cal-bctl">

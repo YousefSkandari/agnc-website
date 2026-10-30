@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. The sections menu sheet on the phone (D 724–747, PORT-PLAN 1.2). Opened from the bottom bar.
+// The sections menu sheet on the phone (D 724–747). Opened from the bottom bar.
 import type { MouseEvent } from "react";
 import { useModalDialog } from "@/lib/client/dialog";
 import { useOverlay, useOverlayHost } from "@/lib/client/overlay";

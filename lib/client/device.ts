@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { londonToday, type Ymd } from "@/lib/dates";
 
-// Breakpoints, matching the CSS in app/globals.css and the package stylesheets
+// Breakpoints, matching the CSS in app/globals.css and the component stylesheets
 export const BP = {
   phone: 640, // at or below: phone layout (bottom bar, full-bleed hero, swipers)
   nav: 860, // at or below: header description hidden, d1 kicker shown

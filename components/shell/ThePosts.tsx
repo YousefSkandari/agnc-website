@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. d2, The posts (D 278–364, PORT-PLAN 1.5): the seven posts in launch order, then the photo row.
+// d2, The posts (D 278–364): the seven posts in launch order, then the photo row.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useSectionRef } from "@/lib/client/sections";
 import { useOverlay } from "@/lib/client/overlay";

@@ -1,8 +1,8 @@
-// The home page. Each part belongs to one build package (see PORT-PLAN.md):
-//   A (components/shell): Header, WhatWeDo d1, ThePosts d2, NesGaby d7, YourPlan d8, Footer, BottomBar, MenuSheet,
-//     ReelViewer
-//   B (components/offer): Calendar d4, HowItWorks d5
-//   C (components/form): PlanOverlay
+// The home page, top to bottom: d1 What we do, d2 The posts, d4 Thirty days, d5 How it works, d7 Nes & Gaby, d8 Your
+// plan. The menu sheet, reel viewer and plan form are overlays (lib/client/overlay.tsx), one open at a time.
+//   components/shell: the header, d1, d2, d7, d8, footer, phone bottom bar, menu sheet and reel viewer
+//   components/offer: d4 and d5
+//   components/form: the plan form (also /plan)
 import Footer from "@/components/shell/Footer";
 import Header from "@/components/shell/Header";
 import WhatWeDo from "@/components/shell/WhatWeDo";
@@ -15,6 +15,9 @@ import ReelViewer from "@/components/shell/ReelViewer";
 import Calendar from "@/components/offer/Calendar";
 import HowItWorks from "@/components/offer/HowItWorks";
 import PlanOverlay from "@/components/form/PlanOverlay";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   return (

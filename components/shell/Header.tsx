@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. The sticky two-row header (D 177–219, PORT-PLAN 1.1).
+// The sticky two-row header (D 177–219).
 // variant "home": nav cells are #anchors with section progress and aria-current; JS scrolls smoothly when motion is on.
 // variant "page": /privacy and the like; cells link to /#dN, the CTA links to /plan, phone shows row A only.
 import type { MouseEvent } from "react";

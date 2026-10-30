@@ -1,10 +1,10 @@
 import { booking, choices, upload } from "@/lib/config";
 import { googleCalendarLink, icsFile } from "@/lib/calendar";
-import { daysBetween, formatDay, isYmd, londonToUtc, londonToday, longDate, offeredDates, shortDay } from "@/lib/dates";
+import { daysBetween, formatDay, isYmd, londonToUtc, londonToday, longDate, offeredDates, OPENING_MAX_DAYS, shortDay } from "@/lib/dates";
 import { sendBookingEmails } from "@/lib/email";
 import { json, limited, oops } from "@/lib/guard";
 import { createRequest, fileLinks, filesExist, SlotTakenError, storeReady } from "@/lib/store";
-import { emailOk, phoneOk, postcodeOk } from "@/lib/validate";
+import { emailOk, parsePostcode, phoneOk } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,9 @@ export async function POST(req: Request) {
   if (str(b.website, 200)) return json({ ok: true, id: "thanks" });
 
   const restaurant = str(b.restaurant, 120);
-  const postcode = str(b.postcode, 12).toUpperCase().replace(/\s+/g, " ");
+  // Stored as "SW1A 1AA" however it was typed (with or without its space)
+  const pc = parsePostcode(str(b.postcode, 12));
+  const postcode = pc.valid ? pc.full : str(b.postcode, 12).toUpperCase();
   const picked = Array.isArray(b.cuisines) ? b.cuisines.filter((c): c is string => choices.cuisines.includes(c as string)) : [];
   // "Something else" is swapped for what they typed, when they typed something
   const other = str(b.cuisineOther, 60);
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
   // Otherwise the chip answer stands: the form sends "We’re already open" for a date today or earlier.
   const od = str(b.openingDate, 10);
   const ahead = isYmd(od) ? daysBetween(londonToday(), od) : -1;
-  const opening = isYmd(od) && ahead >= 1 && ahead <= 730 ? `${od} (${longDate(od)})` : oneOf(b.opening, choices.opening);
+  const opening = isYmd(od) && ahead >= 1 && ahead <= OPENING_MAX_DAYS ? `${od} (${longDate(od)})` : oneOf(b.opening, choices.opening);
   const goal = oneOf(b.goal, choices.goals);
   const files = Array.isArray(b.files) ? b.files.filter((f): f is string => typeof f === "string" && FILE_PATH.test(f)).slice(0, upload.maxFiles) : [];
   const name = str(b.name, 80);
@@ -48,11 +50,11 @@ export async function POST(req: Request) {
   const allowed = new Set([...offeredDates(), ...offeredDates(new Date(Date.now() - 3 * 3600 * 1000))]);
   const problems: Record<string, string> = {};
   if (!restaurant) problems.restaurant = "Add the name on your door.";
-  if (!postcodeOk(postcode)) problems.postcode = "Check the postcode. It looks like AB1 2CD.";
-  if (!cuisines.length) problems.cuisines = "Pick at least one";
-  if (!opening) problems.opening = "Pick when you open";
-  if (!goal) problems.goal = "Pick what matters most";
-  if (!allowed.has(date) || !time) problems.slot = "Pick a day and time";
+  if (!pc.valid) problems.postcode = "Check the postcode. It looks like AB1 2CD.";
+  if (!cuisines.length) problems.cuisines = "Pick at least one.";
+  if (!opening) problems.opening = "Pick when you open. A date in the next two years works.";
+  if (!goal) problems.goal = "Pick what matters most.";
+  if (!allowed.has(date) || !time) problems.slot = "Pick a day and time.";
   if (!name) problems.name = "Add your name.";
   if (!emailOk(email)) problems.email = "Check the email address.";
   if (!phoneOk(whatsapp)) problems.whatsapp = "Check the number, starting 0 or +44.";

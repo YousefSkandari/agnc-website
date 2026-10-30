@@ -28,6 +28,9 @@ export function addDays(d: Ymd, n: number): Ymd {
   return `${t.getUTCFullYear()}-${pad(t.getUTCMonth() + 1)}-${pad(t.getUTCDate())}`;
 }
 
+// How far ahead an opening date may be (the form, the d4 calendar and /api/submit all use it)
+export const OPENING_MAX_DAYS = 730;
+
 export const weekdayOf = (d: Ymd) => toUtcNoon(d).getUTCDay();
 
 export function daysBetween(a: Ymd, b: Ymd) {

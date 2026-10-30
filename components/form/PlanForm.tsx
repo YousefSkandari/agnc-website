@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE C. The eight-step plan form (PORT-PLAN 1.12 and 4; D 884–1108, logic D 1873–1993; phone P4).
+// The eight-step plan form (D 884–1108, logic D 1873–1993; phone P4).
 // mode "overlay": inside PlanOverlay's <dialog>; each step forward pushes a history entry, so the browser's back goes
 //   back a step, and close returns to the page.
 // mode "page": /plan, no dialog and no step history; close and "Back to the page" link to "/".
@@ -17,7 +17,7 @@ import {
   type ReactNode,
 } from "react";
 import { choices, site, upload } from "@/lib/config";
-import { daysBetween, londonToday, MONTHS, shortDay, type Ymd } from "@/lib/dates";
+import { addDays, daysBetween, londonToday, MONTHS, OPENING_MAX_DAYS, shortDay, type Ymd } from "@/lib/dates";
 import { useCoarsePointer, useLondonToday, useMediaQuery, usePhone } from "@/lib/client/device";
 import { useMotion } from "@/lib/client/motion";
 import { useOpening, type Opening } from "@/lib/client/opening";
@@ -77,7 +77,7 @@ const FIELD_ID: Record<Field, string> = {
 };
 const STEP_FIELDS: Partial<Record<StepN, Field[]>> = { 1: ["name", "postcode"], 8: ["cname", "email", "phone"] };
 
-// Server problem keys: which step and which field or group they belong to (PORT-PLAN 4.3 step 5)
+// Server problem keys: which step and which field or group they belong to
 const PROBLEM: Record<string, { step: StepN; field?: Field; group?: Group; focus: string }> = {
   restaurant: { step: 1, field: "name", focus: "pf-name" },
   postcode: { step: 1, field: "postcode", focus: "pf-postcode" },
@@ -92,6 +92,8 @@ const PROBLEM: Record<string, { step: StepN; field?: Field; group?: Group; focus
 
 const OPENING_LABEL = { open: choices.opening[0], this: choices.opening[1], next: choices.opening[2] } as const;
 const ALREADY_OPEN = "Already open. Your plan covers your next 30 days.";
+// /api/submit keeps a date up to OPENING_MAX_DAYS ahead, so the form says so at step 3 rather than after Send
+const TOO_FAR = "Pick a date in the next two years.";
 const TOO_BIG = "That file’s too big. A photo of the menu works.";
 // The upload route's own message, shown as soon as such a file is picked rather than after Send
 const BAD_TYPE = "That file type isn't supported. Use a PDF or photo.";
@@ -109,7 +111,7 @@ const session: { step: Step; file: File | null; uploaded: { file: File; path: st
   done: null,
 };
 
-function openingView(o: Opening, today: Ymd | null) {
+function openingView(o: Opening, today: Ymd | null): { chip: string; line: string; already: boolean; far?: boolean } {
   if (o.kind === "open") return { chip: "OPEN NOW", line: ALREADY_OPEN, already: true };
   if (!today) return { chip: "", line: "", already: false };
   const m = Number(today.split("-")[1]) - 1;
@@ -118,6 +120,7 @@ function openingView(o: Opening, today: Ymd | null) {
   if (o.kind === "date" && o.date) {
     const n = daysBetween(today, o.date);
     if (n <= 0) return { chip: "OPEN NOW", line: ALREADY_OPEN, already: true };
+    if (n > OPENING_MAX_DAYS) return { chip: "", line: "", already: false, far: true };
     const [, mm, dd] = o.date.split("-").map(Number);
     return {
       chip: `${dd} ${MONTHS[mm - 1].toUpperCase()}`,
@@ -262,6 +265,11 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
   useEffect(() => {
     if (!overlay) return;
     return onBack(() => {
+      // While the request is in flight the step stays put (as the on-screen Back does): put the entry back
+      if (sendingRef.current) {
+        pushStep();
+        return true;
+      }
       const s = stepRef.current;
       if (typeof s === "number" && s > 1) {
         go((s - 1) as StepN);
@@ -269,7 +277,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
       }
       return false;
     });
-  }, [overlay, onBack, go]);
+  }, [overlay, onBack, go, pushStep]);
 
   // Reopened on a later step: put back one history entry per step, so back still walks the steps
   const repushed = useRef(false);
@@ -280,7 +288,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     if (typeof s === "number") for (let i = 1; i < s; i++) pushStep();
   }, [overlay, pushStep]);
 
-  // Focus follows the step (F8): the new step's heading, or the field the server asked about
+  // Focus follows the step: the new step's heading, or the field the server asked about
   useEffect(() => {
     if (!focusReq) return;
     if (focusReq.top) {
@@ -309,7 +317,8 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     const d = { ...a, ref: ref.current };
     pending.current = d;
     const id = window.setTimeout(() => {
-      writeDraft(d);
+      // A send that finished within these 300ms has already cleared the draft: don't write it back
+      if (!finished.current) writeDraft(d);
       pending.current = null;
     }, 300);
     return () => window.clearTimeout(id);
@@ -402,7 +411,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
       case 2:
         return a.foods.length > 0;
       case 3:
-        return opening.kind !== "";
+        return opening.kind !== "" && !ov.far;
       case 4:
         return !!menuName || a.menuLater;
       case 5:
@@ -416,7 +425,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     }
   };
 
-  // Continue pressed on an unfinished step: every error on it shows (F3), and focus goes to the first one
+  // Continue pressed on an unfinished step: every error on it shows, and focus goes to the first one
   const tried = (n: StepN, focus: boolean) => {
     const fields = STEP_FIELDS[n];
     if (!fields) return;
@@ -533,7 +542,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     const snapshot = card();
     const call = a.call;
 
-    // The menu goes up only now (F12: once per file, so a retry after a 409 or a 400 doesn't upload it again)
+    // The menu goes up only now (once per file, so a retry after a 409 or a 400 doesn't upload it again)
     const files: string[] = [];
     const f = file.current;
     if (f) {
@@ -590,7 +599,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
       if (!alive.current) return;
       setSending(false);
       setDone(d);
-      // No history entry for the done screen (F9): the browser's back closes the overlay from here
+      // No history entry for the done screen: the browser's back closes the overlay from here
       go("done");
       return;
     }
@@ -600,7 +609,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
     if (res.kind === "taken") {
       // Back on step 7 the times load again, with that one now taken
       setA((x) => ({ ...x, call: { ...x.call, time: "" } }));
-      if (overlay && step === 8) popStep();
+      if (overlay && stepRef.current === 8) popStep();
       go(7);
       setAlert({ step: 7, text: res.error });
       return;
@@ -876,7 +885,7 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
                             </button>
                           ))}
                         </div>
-                        <div className="pf-field pf-date">
+                        <div className={`pf-field pf-date pf-field--rule${server.opening || ov.far ? " is-bad" : ""}`}>
                           <label className="pf-label" htmlFor="pf-date">
                             Pick the date
                           </label>
@@ -885,15 +894,16 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
                             className="fld"
                             type="date"
                             min={today ?? undefined}
+                            max={today ? addDays(today, OPENING_MAX_DAYS) : undefined}
                             value={opening.kind === "date" ? opening.date : ""}
-                            aria-invalid={server.opening ? true : undefined}
-                            aria-describedby={server.opening ? "pf-date-err" : undefined}
+                            aria-invalid={server.opening || ov.far ? true : undefined}
+                            aria-describedby={server.opening || ov.far ? "pf-date-err" : undefined}
                             onChange={(e) => {
                               clearServer("opening");
                               setOpeningDate(e.target.value);
                             }}
                           />
-                          {server.opening && <ErrLine id="pf-date-err" text={server.opening} />}
+                          {(server.opening || ov.far) && <ErrLine id="pf-date-err" text={ov.far ? TOO_FAR : server.opening!} />}
                           <div aria-live="polite">{ov.line && <p className="pf-openline">{ov.line}</p>}</div>
                         </div>
                         <Why>Your posting calendar counts down to your doors.</Why>
@@ -1247,7 +1257,8 @@ export default function PlanForm({ mode, onClose, entering = false }: PlanFormPr
             </div>
 
             <aside className="pf-aside" aria-label="Your plan so far">
-              <div className={`paper pf-card${isDone ? " is-done" : ""}`} aria-live="polite">
+              {/* Not a live region (D 1087 and P4 54 had aria-live): it would read the name back on every keystroke */}
+              <div className={`paper pf-card${isDone ? " is-done" : ""}`}>
                 <p className="pf-card-k">YOUR 30-DAY LAUNCH PLAN · {isDone ? "REQUESTED" : "DRAFT"}</p>
                 <p className={`pf-card-name${shownCard.name ? "" : " is-empty"}`}>{shownCard.name || "Your restaurant"}</p>
                 <div className="pf-card-chips">

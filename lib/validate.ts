@@ -9,7 +9,8 @@ export const OUTCODES: Record<string, string> = {
   KT16: "RUNNYMEDE",
 };
 
-export type Postcode = { valid: boolean; out: string; area: string };
+// full: the whole postcode with its single space, e.g. "SW1A 1AA"
+export type Postcode = { valid: boolean; out: string; full: string; area: string };
 
 // A UK postcode, with or without its space: "TW20 0AB", "tw200ab", "SW1A 1AA"
 export function parsePostcode(v: unknown): Postcode {
@@ -18,8 +19,8 @@ export function parsePostcode(v: unknown): Postcode {
     .toUpperCase()
     .replace(/\s+/g, " ");
   const m = /^([A-Z]{1,2}\d[A-Z\d]?) ?\d[A-Z]{2}$/.exec(s);
-  if (!m) return { valid: false, out: "", area: "" };
-  return { valid: true, out: m[1], area: OUTCODES[m[1]] ?? "" };
+  if (!m) return { valid: false, out: "", full: "", area: "" };
+  return { valid: true, out: m[1], full: `${m[1]} ${s.slice(-3)}`, area: OUTCODES[m[1]] ?? "" };
 }
 
 export const postcodeOk = (v: unknown) => parsePostcode(v).valid;

@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. d7, Nes & Gaby (D 666–692, PORT-PLAN 1.9). A client component only for the section ref; the clip
+// d7, Nes & Gaby (D 666–692). A client component only for the section ref; the clip
 // reveal on the photos is CSS (scroll-driven, motion only).
 import { useSectionRef } from "@/lib/client/sections";
 import { photos } from "@/lib/media";

@@ -56,24 +56,24 @@ export async function sendBookingEmails(b: Booking) {
     b.how === "Phone" ? `We'll ring you on ${b.whatsapp}.` : "We'll send you the video link before the call.";
   const paras = [
     `Hi ${b.firstName},`,
-    `Thanks for telling us about ${b.restaurant}. Your walkthrough is booked for ${b.callText}.`,
+    `Thanks for telling us about ${b.restaurant}. Your handover call is booked for ${b.callText}.`,
     `Over the next three days we'll write your 30-day launch plan, then walk you through it on the call. It's yours to keep, whether you work with us or not. ${how}`,
     `Need to move it? Just reply to this email or WhatsApp us on ${site.whatsapp}.`,
   ];
   const toClient = send({
     to: [b.email],
     replyTo: NOTIFY[0],
-    subject: `You're booked in: plan walkthrough, ${b.callShort}`,
+    subject: `You're booked in: your handover call, ${b.callShort}`,
     text: [...paras, "Nes & Gaby", "agnc. media"].join("\n\n"),
     html:
       `<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#161616;max-width:560px">` +
       paras.map((p) => `<p>${h(p)}</p>`).join("") +
       `<p style="font-family:Georgia,serif;font-style:italic;font-size:22px;margin:24px 0 0">Nes &amp; Gaby</p>` +
       `<p style="color:#5A554D;font-size:13px;margin:4px 0 0">agnc. media</p></div>`,
-    attachments: [{ filename: "agnc-walkthrough.ics", content: Buffer.from(b.ics).toString("base64") }],
+    attachments: [{ filename: "agnc-handover.ics", content: Buffer.from(b.ics).toString("base64") }],
   });
 
-  const rows = b.answers.map(([k, v]) => `<tr><td style="padding:6px 16px 6px 0;color:#5A554D;vertical-align:top">${h(k)}</td><td style="padding:6px 0">${h(v || "-")}</td></tr>`);
+  const rows = b.answers.map(([k, v]) => `<tr><td style="padding:6px 16px 6px 0;color:#5A554D;vertical-align:top">${h(k)}</td><td style="padding:6px 0">${h(v || "-").replace(/\n/g, "<br>")}</td></tr>`);
   const files = b.files.length
     ? b.files.map((f) => `<li><a href="${h(f.url)}">${h(f.path.split("/").pop() || f.path)}</a></li>`).join("")
     : "<li>No files. " + h(b.answers.find(([k]) => k === "Menu")?.[1] ?? "") + "</li>";
@@ -87,7 +87,7 @@ export async function sendBookingEmails(b: Booking) {
       `<h2 style="margin:0 0 12px">${h(b.restaurant)}</h2><p>Call: <b>${h(b.callText)}</b> (${h(b.how)})</p>` +
       `<table style="border-collapse:collapse">${rows.join("")}</table>` +
       `<h3>Menu and files</h3><ul>${files}</ul><p style="color:#5A554D;font-size:12px">File links last 14 days. Request ${h(b.id)}.</p></div>`,
-    attachments: [{ filename: "agnc-walkthrough.ics", content: Buffer.from(b.ics).toString("base64") }],
+    attachments: [{ filename: "agnc-handover.ics", content: Buffer.from(b.ics).toString("base64") }],
   });
 
   const [client, us] = await Promise.all([toClient, toUs]);

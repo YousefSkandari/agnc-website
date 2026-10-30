@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. The reel viewer (D 749–882, logic D 1613–1660; phone P2; PORT-PLAN 1.6).
+// The reel viewer (D 749–882, logic D 1613–1660; phone P2).
 // One state machine, two layers: the three-column grid (single column at 1200px and below) and, at 640px and below,
 // the full-bleed phone layer. Index 0–6 are the posts, 7 is the end card.
 import {
@@ -332,7 +332,9 @@ function PhoneLayer({ m }: { m: Model }) {
 
   // Gestures (P2 426–450): tap left 130px for previous, the rest for next; swipe up for next, down for previous (or
   // close on post 1); hold 250ms to pause, release to resume. Taps are ignored for 400ms after a swipe or a hold.
-  const g = useRef<{ y: number; held: boolean } | null>(null);
+  // A finger that moves more than 10px is a swipe, not a hold: the artboard never cancelled the hold timer on
+  // movement, so an unhurried swipe (over 250ms) paused the video and was then dropped as a hold.
+  const g = useRef<{ x: number; y: number; held: boolean; moved: boolean } | null>(null);
   const holdT = useRef(0);
   const heldPause = useRef(false);
   const suppressUntil = useRef(0);
@@ -348,10 +350,10 @@ function PhoneLayer({ m }: { m: Model }) {
     }
   };
   const onDown = (e: PointerEvent<HTMLDivElement>) => {
-    g.current = { y: e.clientY, held: false };
+    g.current = { x: e.clientX, y: e.clientY, held: false, moved: false };
     window.clearTimeout(holdT.current);
     holdT.current = window.setTimeout(() => {
-      if (!g.current) return;
+      if (!g.current || g.current.moved) return;
       g.current.held = true;
       const el = curRef.current.element;
       if (el && !el.paused) {
@@ -360,24 +362,34 @@ function PhoneLayer({ m }: { m: Model }) {
       }
     }, 250);
   };
+  const onMove = (e: PointerEvent<HTMLDivElement>) => {
+    const s = g.current;
+    if (!s || s.moved) return;
+    if (Math.abs(e.clientX - s.x) > 10 || Math.abs(e.clientY - s.y) > 10) {
+      s.moved = true;
+      if (!s.held) window.clearTimeout(holdT.current);
+    }
+  };
   const onUp = (e: PointerEvent<HTMLDivElement>) => {
     window.clearTimeout(holdT.current);
     const s = g.current;
     g.current = null;
     if (!s) return;
     const dy = e.clientY - s.y;
-    if (s.held) {
-      suppressUntil.current = Date.now() + 400;
-      resumeHeld();
-      return;
-    }
+    // The swipe is read first, so a hold that turns into a swipe still moves on (the held post goes with it, so its
+    // pause is simply forgotten; the next post plays as usual)
     if (dy < -60) {
       suppressUntil.current = Date.now() + 400;
+      heldPause.current = false;
       m.go(idx + 1);
     } else if (dy > 80) {
       suppressUntil.current = Date.now() + 400;
+      heldPause.current = false;
       if (idx === 0) m.close();
       else m.go(idx - 1);
+    } else if (s.held || s.moved) {
+      suppressUntil.current = Date.now() + 400;
+      resumeHeld();
     }
   };
   const onCancel = () => {
@@ -391,7 +403,11 @@ function PhoneLayer({ m }: { m: Model }) {
   };
 
   const nextLabel = m.next ? `SWIPE UP · NEXT: ${m.next.n} ${m.next.title.toUpperCase()}` : "SWIPE UP · THAT’S ALL SEVEN";
-  const nextAria = m.next ? `Next post, ${m.next.n} of 07: ${m.next.title}` : "You’ve seen all seven. Continue";
+  // The artboard's names ("Next post, 02 of 07: The process") left out the words on the button, which fails WCAG
+  // 2.5.3 (label in name): a voice user says what they see. The name starts with the visible words, then the count.
+  const nextAria = m.next
+    ? `Swipe up · Next: ${m.next.n} ${m.next.title}, post ${m.next.n} of 07`
+    : "Swipe up · That’s all seven. Continue";
 
   return (
     <div className={`v-ph${buttons ? " is-buttons" : ""}`}>
@@ -405,7 +421,7 @@ function PhoneLayer({ m }: { m: Model }) {
             {m.prev && <img className="v-ph-warm" src={m.prev.reel.poster} alt="" aria-hidden="true" width={576} height={1024} />}
             <NextVideo m={m} />
           </div>
-          <div className="v-ph-gest" onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={onCancel}>
+          <div className="v-ph-gest" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel}>
             <button type="button" className="v-tap v-ph-tap-prev" aria-label="Previous post" onClick={tap(idx - 1)} />
             <button type="button" className="v-tap v-ph-tap-next" aria-label="Next post" onClick={tap(idx + 1)} />
           </div>
@@ -490,8 +506,7 @@ function PhoneLayer({ m }: { m: Model }) {
               </div>
             </div>
             <button type="button" className="v-ph-nextb" aria-label={nextAria} onClick={tap(idx + 1)}>
-              {/* The swipe hint is for the eye; the name says which post comes next (WCAG 2.5.3 then holds) */}
-              <span aria-hidden="true">
+              <span>
                 <IconUp />
                 <span>{nextLabel}</span>
               </span>
@@ -510,13 +525,16 @@ function PhoneLayer({ m }: { m: Model }) {
               <span className="v-ph-circ">{cur.playing ? <IconPause size={20} /> : <IconPlay size={20} />}</span>
               <span className="v-ph-rlab">{cur.playing ? "PAUSE" : "PLAY"}</span>
             </button>
-            <button type="button" className="v-ph-rb" aria-label="First 3 seconds" aria-pressed={first3} onClick={m.toggleFirst3}>
+            {/* Named by its content, "HOOK, first 3 seconds": the artboard's aria-label "First 3 seconds" left out the
+                word on the button, which fails WCAG 2.5.3 (label in name) */}
+            <button type="button" className="v-ph-rb" aria-pressed={first3} onClick={m.toggleFirst3}>
               <span className={`v-ph-circ${first3 ? " is-on" : ""}`}>
                 <span className="v-ph-3s" aria-hidden="true">
                   3s
                 </span>
               </span>
               <span className="v-ph-rlab">HOOK</span>
+              <span className="sr-only">, first 3 seconds</span>
             </button>
             {post.buttonsCheck && (
               <button
@@ -635,10 +653,11 @@ export default function ReelViewer() {
   // The next post preloads 2s after this one opens, never under Save-Data (D 1655–1660)
   useEffect(() => {
     setNextPreload("none");
-    if (!open || saveData) return;
+    // Nor with autoplay off (reduced motion or the MOTION switch): it exists only so the next autoplay starts at once
+    if (!open || saveData || !cur.autoplay) return;
     const t = window.setTimeout(() => setNextPreload("auto"), 2000);
     return () => window.clearTimeout(t);
-  }, [open, idx, saveData]);
+  }, [open, idx, saveData, cur.autoplay]);
 
   // A control that disappears with the post it belonged to (Watch again, the rail rows) must not drop focus out of the
   // dialog: give it back to the dialog itself, so the arrows and Space keep working.

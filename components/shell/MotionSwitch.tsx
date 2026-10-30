@@ -2,8 +2,8 @@
 
 import { useMotion } from "@/lib/client/motion";
 
-// PACKAGE A, private. The MOTION switch (D 185–187 in the header, D 741–743 in the menu sheet). Both words are in the
-// HTML and CSS on <html data-motion> shows the right one, so the first paint never shows the wrong word (H3).
+// The MOTION switch (D 185–187 in the header, D 741–743 in the menu sheet). Both words are in the
+// HTML and CSS on <html data-motion> shows the right one, so the first paint never shows the wrong word.
 export default function MotionSwitch({ where }: { where: "header" | "menu" }) {
   const [motion, setMotion] = useMotion();
   return (

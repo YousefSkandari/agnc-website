@@ -91,7 +91,7 @@ export function cellAria(d: CalDay, x: DayView): string {
   return `${d.words}, ${CAL_WEEKDAY_FULL[x.wd]}${date}. ${d.fmtWord}. ${CAL_JOBS[d.job]}. ${markWords(d)}.`;
 }
 
-// Phone card (B-phone-5 539, amendment K6): the full month, then "Show the brief."
+// Phone card (B-phone-5 539): the full month, then "Show the brief."
 export function cardAria(d: CalDay, x: DayView): string {
   const date = x.dt ? `, ${dayNum(x.dt)} ${MONTHS_FULL[monthIdx(x.dt)]}` : "";
   return `${d.words}, ${CAL_WEEKDAY_FULL[x.wd]}${date}. ${d.fmtWord}. ${CAL_JOBS[d.job]}. ${markWords(d)}. Show the brief.`;
@@ -105,7 +105,7 @@ export const cardCode = (d: CalDay, x: DayView) => `${d.code} · ${x.wd.toUpperC
 
 export const glyphOf = (d: CalDay) => ({ d: CAL_GLYPH[d.glyph], dash: d.glyph === "stories" ? "3 2.4" : undefined });
 
-// The swiper's filter jump (B-phone-5 288-293, amendment K9): the first match at or after `from`, else the nearest
+// The swiper's filter jump (B-phone-5 288-293): the first match at or after `from`, else the nearest
 // one before it. "All", or no match at all, stays put.
 export function matchFrom(from: number, filter: CalFilter): number {
   if (filter === "all") return from;

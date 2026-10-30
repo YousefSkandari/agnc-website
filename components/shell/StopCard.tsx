@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A, private. "Your longest stop" (D 828–833, 870–875; P2 57–70), timed by lib/client/playback.tsx.
+// "Your longest stop" (D 828–833, 870–875; P2 57–70), timed by lib/client/playback.tsx.
 // Held in memory only: nothing is sent or stored.
 import { useLongestStop } from "@/lib/client/playback";
 import { useCoarsePointer } from "@/lib/client/device";

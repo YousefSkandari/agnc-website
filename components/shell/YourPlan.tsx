@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. d8, Your plan (D 694–701, PORT-PLAN 1.10). The pill is watched for the phone bottom bar.
+// d8, Your plan (D 694–701). The pill is watched for the phone bottom bar.
 import PlanButton from "@/components/ui/PlanButton";
 import { useSectionRef } from "@/lib/client/sections";
 import { usePillSignal } from "./barSignals";

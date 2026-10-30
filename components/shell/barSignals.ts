@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-// PACKAGE A, private. The phone bottom bar shows once the d1 pill has scrolled off the top, and hides again while the
+// The phone bottom bar shows once the d1 pill has scrolled off the top, and hides again while the
 // d8 pill is on screen (artboard D 1407–1414, 2108). The two pills live in WhatWeDo and YourPlan, which are siblings of
 // the bar under a server page, so the signals go through this tiny store instead of a context.
 type Signals = { d1Off: boolean; d8On: boolean };

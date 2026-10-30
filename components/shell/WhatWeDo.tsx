@@ -1,7 +1,7 @@
 /// <reference types="react-dom/canary" />
 "use client";
 
-// PACKAGE A. d1, What we do: the hero (D 223–276; phone P1; PORT-PLAN 1.4).
+// d1, What we do: the hero (D 223–276; phone P1).
 import { useCallback, useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import PlanButton from "@/components/ui/PlanButton";

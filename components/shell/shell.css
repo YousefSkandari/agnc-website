@@ -1,6 +1,6 @@
-/* PACKAGE A: header, menu sheet, bottom bar, d1, d2, reel viewer, d7, d8, footer, privacy page.
+/* The header, menu sheet, bottom bar, d1, d2, reel viewer, d7, d8, footer, privacy page.
    Ported from B-desktop.dc.html (D) and the phone screens B-phone-1 (P1, hero) and B-phone-2 (P2, viewer).
-   Class prefixes owned by A: .hdr .menu- .bbar .d1 .strip .photos .viewer .v- .stop .founders .founder .d7 .d8 .ftr
+   Class prefixes: .hdr .menu- .bbar .d1 .strip .photos .viewer .v- .stop .founders .founder .d7 .d8 .ftr
    .prose .mo-
    Motion follows the convention in app/globals.css: everything that moves sits inside
    @media (prefers-reduced-motion: no-preference) { :root[data-motion="on"] ... }, scroll-driven effects also inside
@@ -251,7 +251,7 @@
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
-  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   background: var(--night);
   border-top: 1px solid var(--hairline);
 }
@@ -2017,7 +2017,10 @@
     left: -16px;
     right: -16px;
     width: auto;
+    /* P1 is drawn on an 844px screen. The frame is the visible screen instead (never under 600px), so on a shorter
+       phone the copy, which is anchored to the bottom, keeps the line and the pill on the first screen */
     height: 844px;
+    height: max(600px, 100svh);
     aspect-ratio: auto;
     border-radius: 0;
     z-index: 0;
@@ -2036,7 +2039,9 @@
     border-radius: 0;
   }
   .d1-chip {
+    /* 310 on the 844 frame, moving up by half of what a shorter screen loses */
     top: 310px;
+    top: max(188px, calc(310px - (844px - 100svh) / 2));
     transform: translateX(-50%);
     width: 160px;
     padding: 0;
@@ -2054,6 +2059,7 @@
     position: relative;
     z-index: 2;
     min-height: 844px;
+    min-height: max(600px, 100svh);
     box-sizing: border-box;
     justify-content: flex-end;
     padding: 140px 0 35px;
@@ -2095,6 +2101,13 @@
     font-variant-numeric: tabular-nums;
     color: var(--soft);
     white-space: nowrap;
+  }
+  /* Below 375px the caption no longer fits on one line inside the gutters: let it wrap */
+  @media (max-width: 374px) {
+    .d1-phcap {
+      max-width: calc(100vw - 32px);
+      white-space: normal;
+    }
   }
   .d1-plsm {
     align-self: flex-start;

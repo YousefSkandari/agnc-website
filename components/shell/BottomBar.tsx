@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE A. The phone bottom bar (D 714–722, PORT-PLAN 1.3). Shown at 640px and below once the d1 pill has scrolled
+// The phone bottom bar (D 714–722). Shown at 640px and below once the d1 pill has scrolled
 // off the top, while the d8 pill is not on screen and no layer is open (D 2108). Hidden with the hidden attribute so
 // it is out of the tab order.
 import { useOverlay } from "@/lib/client/overlay";

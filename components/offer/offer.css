@@ -1,5 +1,5 @@
-/* PACKAGE B: d4 (the 30-day example plan) and d5 (how it works, price, terms and questions).
-   Class prefixes owned by B: .cal .hiw .price .faq
+/* d4 (the 30-day example plan) and d5 (how it works, price, terms and questions).
+   Class prefixes: .cal .hiw .price .faq
    Values are the artboard's (B-desktop 366-664 and its head CSS 39-41, 57, 69-70, 100-124, 160-168); at 640px and
    below the phone screen B-phone-5 wins for d4. Motion sits behind the shared convention in app/globals.css. */
 
@@ -1147,8 +1147,10 @@
     font-size: 11px;
     line-height: 14px;
   }
+  /* 200px wide (P5), shrinking below that on screens under 360px so the row never pushes the page sideways */
   .fld.cal-date {
-    flex: none;
+    flex: 0 1 200px;
+    min-width: 0;
     width: 200px;
     height: 48px;
     font-size: 16px;

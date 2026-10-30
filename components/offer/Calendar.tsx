@@ -8,6 +8,7 @@ import PlanButton from "@/components/ui/PlanButton";
 import { CAL_DAYS, calIndex, type CalDay } from "@/content/calendar";
 import { MQ, useLondonToday, useMediaQuery, usePhone } from "@/lib/client/device";
 import { useOpening } from "@/lib/client/opening";
+import { addDays, OPENING_MAX_DAYS } from "@/lib/dates";
 import { useOverlay } from "@/lib/client/overlay";
 import { useActiveSection, useSectionRef } from "@/lib/client/sections";
 import { DeskBrief, PhoneBrief, type BriefNav } from "./CalBrief";
@@ -254,7 +255,7 @@ export default function Calendar() {
   };
 
   const openDay = (id: string) => {
-    // Clicking the open day again closes it (K1)
+    // Clicking the open day again closes it
     if (open === id) {
       closeBrief(false);
       return;
@@ -270,7 +271,7 @@ export default function Calendar() {
       if (!el) return;
       const behavior: ScrollBehavior = smooth() ? "smooth" : "auto";
       if (sw) el.focus({ preventScroll: true });
-      // Phone: the brief sits 56px from the top (K4). Elsewhere it scrolls only as far as it must (K3).
+      // Phone: the brief sits 56px from the top. Elsewhere it scrolls only as far as it must.
       if (phone) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 56, behavior });
       else el.scrollIntoView({ block: "nearest", behavior });
     };
@@ -303,7 +304,7 @@ export default function Calendar() {
     after.current = () => tileRef.current?.focus();
   };
 
-  // Esc anywhere in d4 closes the brief and returns to its day (K5)
+  // Esc anywhere in d4 closes the brief and returns to its day
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape" && open) {
       e.preventDefault();
@@ -339,6 +340,7 @@ export default function Calendar() {
                 className="fld cal-date"
                 type="date"
                 min={today ?? undefined}
+                max={today ? addDays(today, OPENING_MAX_DAYS) : undefined}
                 value={opening.kind === "date" ? opening.date : ""}
                 onChange={(e) => setOpeningDate(e.target.value)}
               />

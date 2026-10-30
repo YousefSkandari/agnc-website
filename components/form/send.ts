@@ -1,4 +1,4 @@
-// Talking to the server: the call times, the menu upload and the plan request itself (PORT-PLAN 4.3).
+// Talking to the server: the call times, the menu upload and the plan request itself.
 
 export type Slot = { time: string; taken: boolean };
 export type SlotDay = { date: string; weekday: string; label: string; inDays: number; times: Slot[] };

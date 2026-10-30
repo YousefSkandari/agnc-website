@@ -1,6 +1,6 @@
 "use client";
 
-// PACKAGE C. The plan form overlay (PORT-PLAN 1.12; D 884–887, D 1874–1895).
+// The plan form overlay (D 884–887, D 1874–1895).
 // With motion on and a pill to grow from, the dialog grows out of the pill's rect (a clip-path, 280ms) and the form
 // fades in after it (D .cin). Otherwise it simply appears: no animation at all with reduced motion or MOTION off.
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";

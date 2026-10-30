@@ -1,5 +1,5 @@
 /* agnc. media, design B ("Where they find you"). Shared tokens, base styles and small utilities.
-   Section and component styles live with their package:
+   Section and component styles live with their components:
      components/shell/shell.css   header, menu, bottom bar, d1, d2, reel viewer, d7, d8, footer, privacy
      components/offer/offer.css   d4 calendar, d5 how it works and price
      components/form/form.css     the plan form (overlay and /plan)
@@ -60,6 +60,9 @@ html.is-locked {
 
 body {
   margin: 0;
+  /* viewport-fit=cover: a notched phone held sideways keeps the page clear of the notch (0 everywhere else) */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   min-height: 100vh;
   background: var(--night);
   color: var(--cream);
@@ -420,14 +423,22 @@ textarea.fld {
 .fld::placeholder {
   color: var(--muted);
 }
+/* focus-within too: a date field's calendar button takes focus inside the field, and it needs the ring as well */
 .fld:focus,
-.fld:focus-visible {
+.fld:focus-visible,
+.fld:focus-within {
   border-color: var(--gold);
   outline: 1px solid var(--gold);
   outline-offset: 0;
 }
 .fld[aria-invalid="true"] {
   border-color: var(--cream);
+}
+/* Focus wins over the error state, as on the artboard (D 29, border-color !important on focus) */
+.fld[aria-invalid="true"]:focus,
+.fld[aria-invalid="true"]:focus-visible,
+.fld[aria-invalid="true"]:focus-within {
+  border-color: var(--gold);
 }
 
 /* Flat plate behind text on video: no blur, no gradient */
@@ -481,6 +492,8 @@ textarea.fld {
   left: -10000px !important;
   width: 1px;
   height: 1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
 }
 
