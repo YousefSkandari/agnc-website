@@ -1,7 +1,8 @@
 /* d4 (the 30-day example plan) and d5 (how it works, price, terms and questions).
    Class prefixes: .cal .hiw .price .faq
-   Values are the artboard's (B-desktop 366-664 and its head CSS 39-41, 57, 69-70, 100-124, 160-168); at 640px and
-   below the phone screen B-phone-5 wins for d4. Motion sits behind the shared convention in app/globals.css. */
+   Values are the artboard's (B-desktop 366-664 and its head CSS 39-41, 57, 69-70, 100-124, 160-168). At 1200px and
+   below d4's week rows are Cal-4-week-rows', and at 640px and below the phone screens (B-phone-5, Cal-4) win for d4.
+   Motion sits behind the shared convention in app/globals.css. */
 
 /* ======================================================================
    d4: Thirty days
@@ -53,6 +54,10 @@
 }
 .cal-chips .chipb {
   height: 44px;
+  gap: 0;
+}
+.cal-chl + .cal-chl {
+  margin-left: 0.28em;
 }
 
 .cal-stat {
@@ -95,8 +100,7 @@
   width: 40px;
   height: 9px;
 }
-.cal-leglogo,
-.cal-pleglogo {
+.cal-leglogo {
   border: 1px solid var(--hairline);
 }
 .cal-legtx {
@@ -272,8 +276,7 @@
   color: var(--cream);
   white-space: normal;
 }
-.cal-ctag svg,
-.cal-ptag svg {
+.cal-ctag svg {
   flex: none;
 }
 
@@ -588,296 +591,454 @@
   text-wrap: pretty;
 }
 
-/* ---------- the swiper (1200px and below) ---------- */
+/* ---------- the week rows (1200px and below, Cal-4-week-rows) ---------- */
 
-.cal-ph {
+/* On a tablet the rows stay at a width where the whole month fits on one screen */
+.cal-rw {
   display: none;
-}
-.cal-ticks {
+  --gap: 10px;
   margin-top: 20px;
-  height: 12px;
+  max-width: 560px;
+}
+.cal-rwh {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: var(--gap);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--muted);
+}
+.cal-rws {
+  margin-top: 6px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
 }
-.cal-tick {
+.cal-rwk {
+  min-width: 0;
+}
+
+/* The week's lane: BUILD-UP, OPENING WEEK (with its gold dot), WEEK 2; its days or dates on the right */
+.cal-rlane {
+  height: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cal-rlane.is-opening .cal-rlab {
+  color: var(--cream);
+}
+.cal-rdot {
   flex: none;
-  display: block;
-  width: 2px;
+  width: 6px;
   height: 6px;
-  background: var(--track);
-}
-.cal-tick.is-past,
-.cal-tick.is-one {
-  background: var(--cream);
-}
-.cal-tick.is-one,
-.cal-tick.is-cur {
-  height: 12px;
-}
-.cal-tick.is-cur {
+  margin-right: -2px;
+  border-radius: 999px;
   background: var(--gold);
 }
-.cal-tick.is-out {
-  opacity: 0.35;
-}
-
-/* Bleeds to the right edge (D: margin-right calc(50% - 50vw), the same as minus the gutter). The 6px padding
-   above and below keeps the focus ring inside the scroller (B-phone-5 59). */
-.cal-sw {
-  position: relative;
-  margin: 2px calc(-1 * var(--gutter)) 0 -16px;
-  padding: 6px 16px;
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: 16px;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-.cal-sw::-webkit-scrollbar,
-.cal-chips::-webkit-scrollbar {
-  display: none;
-}
-.cal-pcard {
-  position: relative;
+.cal-rlab,
+.cal-rrange {
   flex: none;
-  width: 208px;
-  height: 370px;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  white-space: nowrap;
 }
-.cal-swend {
-  flex: 0 0 150px;
+.cal-rrange {
+  font-variant-numeric: tabular-nums;
+}
+.cal-rline {
+  flex: 1 1 auto;
+  min-width: 12px;
   height: 1px;
+  background: var(--hairline);
 }
 
-/* A card (the D look between 641 and 1200px; B-phone-5 takes over below) */
-.cal-pc {
-  position: absolute;
-  inset: 0;
+.cal-rrow {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: var(--gap);
+}
+.cal-rrow > li {
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* A day: a small post tile, cropped 3:4 the way a profile grid shows posts and reels */
+.cal-tile {
+  position: relative;
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 46 / 61;
   padding: 0;
-  border: 1px solid var(--hairline);
-  border-radius: 12px;
-  background: var(--placeholder);
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-1);
   color: var(--cream);
   text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.cal-pc.is-d1 {
-  border-color: var(--cream);
+.cal-tile:focus-visible {
+  outline-offset: 2px;
 }
-.cal-pc--sample {
-  background: var(--surface-2);
-  border: 1px dashed var(--outline);
-}
-.cal-pc--sample.is-dim {
-  border-color: rgba(243, 238, 228, 0.16);
-}
-.cal-pmedia {
+.cal-timg {
   position: absolute;
   inset: 0;
   display: block;
-}
-.cal-pimg,
-.cal-pvid {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.cal-scrim {
-  display: none;
-}
-.cal-pday {
+.cal-tfmt {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  flex-direction: column;
-  padding: 3px 6px;
+  right: 3px;
+  bottom: 3px;
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
   background: var(--plate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cream);
+}
+.cal-tglyph {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 28%;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+/* Filtered out or passed: a night scrim dims the picture or glyph; the labels drop to muted */
+.cal-tdim {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.6);
+  opacity: 0;
+}
+.cal-tile.is-dim .cal-tdim {
+  opacity: 1;
+}
+.cal-tlab {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  padding: 1px 4px;
+  border-radius: 4px;
   font-family: var(--mono);
   font-size: 11px;
   line-height: 14px;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--cream);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  color: var(--cream);
 }
-.cal-pday .cal-cdate {
-  font-size: 11px;
-}
-.cal-pday--bare {
-  top: 10px;
-  left: 10px;
-  padding: 0;
-  border-radius: 0;
-  background: none;
-}
-.cal-pstamp {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-.cal-ptag {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  max-width: calc(100% - 68px);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 6px;
-  border-radius: 4px;
+.cal-tile--work .cal-tlab {
   background: var(--plate);
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.06em;
-  color: var(--cream);
 }
-.cal-pmid {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
+.cal-tile.is-d1 .cal-tlab {
+  color: var(--gold);
 }
-.cal-pglyph {
-  display: flex;
+.cal-tile.is-dim .cal-tlab,
+.cal-tile.is-dim .cal-tfmt {
   color: var(--muted);
 }
-.cal-pfmt {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 36px;
-  line-height: 40px;
-  color: var(--cream);
+.cal-tile.is-past .cal-tlab {
+  text-decoration: line-through;
 }
-.cal-pjob {
+.cal-tile.is-open .cal-tlab {
+  background: var(--gold);
+  color: var(--night);
+}
+.cal-tedge {
   position: absolute;
-  left: 10px;
-  bottom: 10px;
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.06em;
-  color: var(--cream);
+  inset: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  pointer-events: none;
 }
-.cal-pc.is-dim .cal-ptag,
-.cal-pc.is-dim .cal-pjob,
-.cal-pc.is-dim .cal-pfmt {
-  color: var(--muted);
+.cal-tile--sample .cal-tedge {
+  border: 1px dashed var(--track);
 }
-.cal-ppause {
-  right: 8px;
-  bottom: 8px;
+.cal-tile.is-d1 .cal-tedge,
+.cal-tile.is-open .cal-tedge {
+  border: 1px solid var(--gold);
+}
+.cal-tile.is-open .cal-tedge {
+  box-shadow: inset 0 0 0 1px var(--gold);
 }
 
-.cal-pfoot {
-  margin-top: 6px;
-  height: 22px;
+/* The key, in the widest run of empty cells */
+.cal-rkey {
+  align-self: center;
+  justify-self: start;
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cal-rkey.is-start {
+  justify-self: end;
+}
+.cal-rkeyi {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.cal-count {
+  gap: 8px;
   font-family: var(--mono);
   font-size: 11px;
   line-height: 14px;
   letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--soft);
 }
-.cal-pleg {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.cal-rkeyw,
+.cal-rkeys,
+.cal-rkeyd {
+  flex: none;
+  display: block;
+  width: 9px;
+  height: 12px;
+  border-radius: 2px;
+}
+.cal-rkeyw {
+  object-fit: cover;
+}
+.cal-rkeys {
+  border: 1px dashed var(--outline);
+  background: var(--surface-1);
+}
+.cal-rkeyd {
+  border: 1px solid var(--gold);
 }
 
-/* The brief under the swiper */
-.cal-pb {
-  margin-top: 12px;
-  padding: 20px;
+/* The brief, under the row of the tapped tile, with a caret pointing at it */
+.cal-rb {
+  position: relative;
+  margin-top: 3px;
+  padding-top: 8px;
+}
+.cal-rbcaret {
+  position: absolute;
+  top: 0;
+  left: calc((100% - 6 * var(--gap)) / 7 * (var(--col) + 0.5) + var(--gap) * var(--col) - 8px);
+  display: block;
+  fill: var(--surface-1);
+}
+.cal-rbgrow {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.cal-rbclip {
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.cal-rbp {
+  padding: 14px;
   border-radius: 16px;
   background: var(--surface-1);
-  scroll-margin-top: max(56px, calc(var(--header-h) + 16px));
 }
-.cal-pbhead {
-  gap: 12px;
+.cal-rbp:focus {
+  outline: none;
 }
-.cal-pbcode {
-  font-size: 11px;
-  line-height: 14px;
+.cal-rbp:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
 }
-.cal-pbmark {
-  margin-top: 8px;
+.cal-rbtop {
   display: flex;
+  gap: 12px;
+  align-items: stretch;
 }
-.cal-pbstamp {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
+.cal-rbmedia {
+  position: relative;
+  flex: none;
+  width: 110px;
+  height: 196px;
+  border-radius: 10px;
+  overflow: hidden;
   background: var(--night);
+}
+.cal-rbmedia--sample {
+  border: 1px dashed var(--track);
+}
+.cal-rbmedia .cal-bvid,
+.cal-rbimg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cal-rbimg.is-wide {
+  object-fit: contain;
+}
+.cal-rbplate {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  pointer-events: none;
+}
+.cal-rbplay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--night);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cal-rbpause {
+  right: 6px;
+  bottom: 6px;
+}
+.cal-rbsample {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.cal-rbsglyph {
+  display: flex;
+  color: var(--muted);
+}
+.cal-rbsfmt {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 26px;
+  color: var(--cream);
+}
+.cal-rbside {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cal-rbcode,
+.cal-rbmark,
+.cal-rbdl dt {
   font-family: var(--mono);
   font-size: 11px;
   line-height: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.cal-rbcode {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cal-rbcode .is-gold {
+  color: var(--gold);
+}
+.cal-rbdate {
+  color: var(--soft);
+}
+.cal-rbdate.is-past {
+  text-decoration: line-through;
+}
+.cal-rbmark {
+  margin-top: 6px;
+  display: flex;
+  color: var(--soft);
+}
+.cal-rbsbadge {
+  padding: 1px 6px;
+  border: 1px dashed var(--outline);
+  border-radius: 4px;
   color: var(--cream);
 }
-.cal-sbadge.cal-pbsbadge {
-  position: static;
-}
-.cal-pbt {
-  margin-top: 12px;
+.cal-rbt {
+  margin-top: 8px;
   font-family: var(--serif);
   font-style: italic;
   font-weight: 400;
-  font-size: 28px;
-  line-height: 32px;
+  font-size: 22px;
+  line-height: 26px;
   color: var(--cream);
   text-wrap: balance;
 }
-.cal-pbdl {
-  margin-top: 16px;
+.cal-rbdl {
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
-.cal-pbdl dt {
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.06em;
+.cal-rbdl > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.cal-rbdl dt {
+  flex: none;
+  width: 56px;
+  line-height: 20px;
   color: var(--muted);
 }
-.cal-pbdl dd {
-  margin-top: 4px;
-  font-size: 16px;
-  line-height: 22px;
+.cal-rbdl dd {
+  min-width: 0;
+  font-size: 15px;
+  line-height: 20px;
   color: var(--cream);
   text-wrap: pretty;
 }
-.cal-pbnote {
-  margin-top: 16px;
+.cal-rbdl--more {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  gap: 6px;
+}
+.cal-rbdl--more dt {
+  width: 64px;
+}
+.cal-rbside .cal-bctl {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.cal-rbside .cal-bctl > :last-child {
+  margin-left: auto;
+}
+.cal-rb .cal-ib svg {
+  width: 18px;
+  height: 18px;
+}
+.cal-rb .icob.cal-ib--disabled {
+  color: var(--disabled);
+  opacity: 1;
+}
+.cal-rbnote {
+  margin-top: 10px;
   font-size: 15px;
-  line-height: 22px;
+  line-height: 20px;
   color: var(--soft);
 }
 
@@ -1061,8 +1222,10 @@
    ====================================================================== */
 
 @media (hover: hover) {
-  .cal-cell:hover,
-  .cal-pc:hover {
+  .cal-cell:hover {
+    border-color: var(--outline);
+  }
+  .cal-tile:not(.is-open, .is-d1):hover .cal-tedge {
     border-color: var(--outline);
   }
   .icob.cal-ib:hover {
@@ -1080,6 +1243,22 @@
   :root[data-motion="on"] .cal-bin {
     animation: fadein 150ms linear both;
   }
+  :root[data-motion="on"] .cal-tdim {
+    transition: opacity 150ms linear;
+  }
+  :root[data-motion="on"] .cal-rbcaret {
+    transition: left 200ms var(--ease);
+  }
+  /* A fresh open grows the rows' brief from nothing; moving between days never replays it */
+  :root[data-motion="on"] .cal-rb.is-slide > .cal-rbgrow {
+    animation: cal-grow 280ms var(--ease) both;
+  }
+  :root[data-motion="on"] .cal-rb.is-slide > .cal-rbcaret {
+    animation: fadein 180ms linear both;
+  }
+  :root[data-motion="on"] .cal-rb.is-slide .cal-rbp {
+    animation: fadein 220ms linear 60ms both;
+  }
   :root[data-motion="on"] .faq-plus {
     transition: transform 150ms linear;
   }
@@ -1090,8 +1269,12 @@
   .cal-leg {
     display: none;
   }
-  .cal-ph {
+  .cal-rw {
     display: block;
+  }
+  /* The key is in the rows here, so with no status line the row under the controls goes */
+  .cal-stat:has(> .cal-status:empty) {
+    display: none;
   }
 }
 
@@ -1113,7 +1296,7 @@
   }
 }
 
-/* Phone: B-phone-5 for d4, the artboard's phone rules for d5 */
+/* Phone: B-phone-5 and Cal-4 for d4, the artboard's phone rules for d5 */
 @media (max-width: 640px) {
   .cal-kick {
     font-size: 11px;
@@ -1164,137 +1347,68 @@
     font-size: 15px;
     line-height: 20px;
   }
-  /* One row that scrolls sideways; 6px of padding above and below keeps the focus ring visible */
+  /* No opening day yet: no line, so the filters sit right under the date (Cal-4) */
+  .cal-status:empty {
+    margin-top: 0;
+    min-height: 0;
+  }
+  /* The five filters as one 44px bar, each job on two short lines, so all five fit the width (Cal-4) */
   .cal-chips {
     order: 3;
-    margin: 2px -16px -6px;
-    padding: 6px 16px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
+    margin-top: 12px;
+    height: 44px;
+    display: grid;
+    grid-template-columns: 50fr 70fr 84fr 70fr 84fr;
+    gap: 0;
+    border-radius: 999px;
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--hairline);
   }
   .cal-chips .chipb {
-    flex: none;
-    font-size: 15px;
-  }
-
-  .cal-ticks {
-    margin-top: 12px;
-  }
-  .cal-tick {
-    border-radius: 1px;
-  }
-
-  /* Cards: the outline moves to the ring, wide media is contained, and a scrim dims (B-phone-5 61-107) */
-  .cal-pc,
-  .cal-pc--sample {
-    border: 0;
-  }
-  .cal-pc .cal-vis {
-    border-radius: 12px;
-  }
-  .cal-pc .cal-hit {
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .cal-pc--work.is-wide {
-    background: var(--surface-2);
-  }
-  .cal-pc.is-wide .cal-pimg {
-    object-fit: contain;
-  }
-  .cal-pc.is-dim .cal-dim {
-    opacity: 1;
-  }
-  .cal-scrim {
-    display: block;
-    position: absolute;
-    inset: 0;
-    background: rgba(17, 17, 16, 0.6);
-    opacity: 0;
-  }
-  .cal-pc.is-dim .cal-scrim {
-    opacity: 1;
-  }
-  .cal-pday {
-    gap: 1px;
-  }
-  .cal-pday--bare {
-    top: 12px;
-    left: 12px;
-  }
-  .cal-pc.is-dim .cal-pcode,
-  .cal-pc.is-dim .cal-psbadge {
-    color: var(--muted);
-  }
-  .cal-psbadge {
-    top: 10px;
-    right: 12px;
-  }
-  .cal-ptag {
-    max-width: 140px;
-  }
-  .cal-pmid {
-    inset: 0;
-    transform: none;
-    justify-content: center;
-  }
-  .cal-pc.is-dim .cal-pfmt {
-    color: var(--cream);
-  }
-  .cal-pjob {
-    left: 12px;
-    bottom: 12px;
-  }
-  .cal-pc .cal-ring {
-    border: 1px solid var(--hairline);
-    border-radius: 12px;
-  }
-  .cal-pc.is-d1 .cal-ring {
-    border-color: var(--cream);
-  }
-  .cal-pc--sample .cal-ring {
-    border: 1px dashed var(--outline);
-  }
-  .cal-pc.is-open .cal-ring {
-    border: 2px solid var(--gold);
-  }
-  .cal-ppause,
-  .pill.cal-pchip {
-    z-index: 2;
-  }
-  .pill.cal-pchip {
-    position: absolute;
-    left: 24px;
-    top: 163px;
-    width: 160px;
+    min-width: 0;
     height: 44px;
-    padding: 0;
-    gap: 8px;
-    font-size: 15px;
-    line-height: 20px;
-  }
-  .cal-pleglogo {
+    min-height: 44px;
+    padding: 0 4px;
     border: 0;
+    border-left: 1px solid var(--hairline);
+    border-radius: 0;
+    background: transparent;
+    flex-direction: column;
+    gap: 0;
+    font-size: clamp(11px, 3.4vw, 13px);
+    line-height: 15px;
+  }
+  .cal-chips .chipb:first-child {
+    border-left-color: transparent;
+    border-radius: 22px 0 0 22px;
+  }
+  .cal-chips .chipb:last-child {
+    border-radius: 0 22px 22px 0;
+  }
+  .cal-chips .chipb[aria-pressed="true"],
+  .cal-chips .chipb[aria-pressed="true"] + .chipb {
+    border-left-color: transparent !important;
+  }
+  .cal-chips .chipb[aria-pressed="true"] {
+    background: var(--gold);
+  }
+  .cal-chips .chipb:active {
+    transform: none;
+  }
+  .cal-chl + .cal-chl {
+    margin-left: 0;
   }
 
-  /* The brief under the swiper */
-  .cal-pbhead {
-    gap: 8px;
+  /* The rows fill the width: 7 tiles of 46px and 6px gaps at 390px */
+  .cal-rw {
+    --gap: 6px;
+    margin-top: 12px;
+    max-width: none;
   }
-  .cal-pb .cal-ib svg {
-    width: 18px;
-    height: 18px;
-  }
-  .cal-pb .icob.cal-ib--disabled {
-    color: var(--disabled);
-    opacity: 1;
-  }
-  .cal-pbstamp {
-    gap: 6px;
-    padding: 4px 6px;
+
+  .cal-close {
+    margin-top: 28px;
+    gap: 14px;
   }
 
   /* d5 */
@@ -1312,10 +1426,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) and (max-width: 640px) {
-  :root[data-motion="on"] .cal-scrim {
-    transition: opacity 150ms linear;
-  }
   :root[data-motion="on"] .cal-chips .chipb {
-    transition: transform 180ms var(--spring), background-color 150ms linear, color 150ms linear;
+    transition: background-color 150ms linear, color 150ms linear;
   }
 }
