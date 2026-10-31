@@ -49,7 +49,7 @@ export function calStatus(opening: Opening, today: Ymd | null): { opening: Ymd |
 
 export function filterLive(filter: CalFilter): string {
   if (filter === "all") return "Showing all 30 days.";
-  return `Showing ${CAL_DAYS.filter((d) => d.job === filter).length} of 30 days.`;
+  return `Showing ${CAL_DAYS.filter((d) => d.job === filter).length} of 30 days: ${CAL_JOBS[filter]}. The others are dimmed.`;
 }
 
 export type DayView = {
@@ -225,10 +225,18 @@ export function tileLabel(d: CalDay, x: DayView): string {
   return d.idx === CAL_DOOR ? "Open" : String(d.idx - CAL_DOOR + 1);
 }
 
-// "9 to go, Wednesday 21 October, already past. The room, before anyone sees it. Reel. Get found. Our work."
+// "9 to go, Wednesday 21 October, already past. The room, before anyone sees it. Reel. Get found. Our work." Day
+// one's tile reads "Open" until a date is set, so its name starts with that word (WCAG 2.5.3).
 export function tileAria(d: CalDay, x: DayView): string {
+  const open = !x.dt && d.idx === CAL_DOOR ? "Open: " : "";
+  return `${open}${dayWords(d, x)}. ${d.title} ${d.fmtWord}. ${CAL_JOBS[d.job]}. ${markWords(d)}.`;
+}
+
+// "9 to go, Wednesday 21 October, already past": what stepping to a day announces
+export function dayWords(d: CalDay, x: DayView): string {
   const date = x.dt ? ` ${dayNum(x.dt)} ${MONTHS_FULL[monthIdx(x.dt)]}` : "";
-  return `${d.words}, ${CAL_WEEKDAY_FULL[x.wd]}${date}${x.past ? ", already past" : ""}. ${d.title} ${d.fmtWord}. ${CAL_JOBS[d.job]}. ${markWords(d)}.`;
+  const words = d.idx === CAL_DOOR && !x.dt ? d.words.toLowerCase() : d.words;
+  return `${words}, ${CAL_WEEKDAY_FULL[x.wd]}${date}${x.past ? ", already past" : ""}`;
 }
 
 // The brief's code line on the rows: "9 TO GO · WED", then the date on its own (struck through once past)

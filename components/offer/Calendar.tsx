@@ -22,6 +22,7 @@ import {
   calStatus,
   cellAria,
   dayView,
+  dayWords,
   filterLive,
   layoutRows,
   layoutWeeks,
@@ -169,7 +170,9 @@ export default function Calendar() {
   // The rows' brief grows open: a fresh open with motion on. Moving to another day in the same row keeps it as it
   // was (the brief stays mounted); stepping into another row never slides.
   const [slide, setSlide] = useState(false);
-  const [announce, setAnnounce] = useState("");
+  // Each announcement is a new node, so a repeat of the last one (stepping back onto the same day) is read again
+  const [announce, setAnnounceState] = useState({ text: "", n: 0 });
+  const setAnnounce = (text: string) => setAnnounceState((a) => ({ text, n: a.n + 1 }));
 
   const tileRef = useRef<HTMLButtonElement>(null);
   // Work to do once the next render is on screen (focus, scrolling), like setState's callback in the artboard
@@ -191,6 +194,39 @@ export default function Calendar() {
       f();
     }
   });
+
+  // The element focused inside the calendar, while focus is in it. Kept when it was removed while focused (Chrome
+  // blurs a node as it is removed), so the swap below can tell focus was lost with the old brief.
+  const focusIn = useRef<Element | null>(null);
+  // Whether the calendar is on screen. The observer reports after layout, so while the layouts swap this still says
+  // where the reader was (the rows are far shorter than the grid, so the page reflows under them).
+  const onScreen = useRef(false);
+  useEffect(() => {
+    const el = document.getElementById("d4");
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => {
+      onScreen.current = e.isIntersecting;
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  // Crossing 1200px with a day open swaps one brief for the other. If focus was in the calendar and is now gone with
+  // the old brief, or sits in the layout just hidden (the grid's cells or the rows' tiles), put it on the open day's
+  // tile or cell, and bring the brief into view if the calendar was on screen. Focus anywhere else, or nowhere (a tap
+  // in Safari focuses nothing), is left alone and nothing scrolls.
+  const wasRows = useRef(isRows);
+  useIsoLayoutEffect(() => {
+    if (wasRows.current === isRows) return;
+    wasRows.current = isRows;
+    const el = focusIn.current;
+    if (!open || !el) return;
+    const lost = !el.isConnected || !!el.closest(isRows ? ".cal-dt" : ".cal-rw");
+    if (!lost) return;
+    document.getElementById(isRows ? `cal-t-${open}` : `cal-c-${open}`)?.focus({ preventScroll: true });
+    if (!onScreen.current) return;
+    if (isRows) revealRow(calIndex(open), false);
+    else document.getElementById("cal-brief")?.scrollIntoView({ block: "nearest", behavior: "instant" });
+  }, [isRows, open]);
 
   const { opening: openDate, status } = calStatus(opening, today);
   const views = useMemo(() => CAL_DAYS.map((d) => dayView(d, openDate, today, filter)), [openDate, today, filter]);
@@ -243,6 +279,8 @@ export default function Calendar() {
       const was = holdTop(tileId);
       setSlide(openIdx > -1 && rowOf(openIdx) === rowOf(i) ? slide : smooth());
       setOpen(id);
+      // So the day is there on the desktop grid too if the window widens
+      if (i > CAL_SHOWN_LAST) setMore(true);
       beforePaint.current = () => {
         holdStill(tileId, was);
         if (keyboard) document.getElementById("cal-rbrief")?.focus({ preventScroll: true });
@@ -275,6 +313,9 @@ export default function Calendar() {
       if (box && !box.contains(document.activeElement)) box.querySelector<HTMLElement>(`[data-step="${which}"]`)?.focus({ preventScroll: isRows });
     };
     setOpen(CAL_DAYS[t].id);
+    if (t > CAL_SHOWN_LAST) setMore(true);
+    // Focus stays on previous or next, so the new day is announced
+    setAnnounce(`${dayWords(CAL_DAYS[t], views[t])}. ${CAL_DAYS[t].title}`);
     if (isRows) {
       // The brief holds still on screen and the rows move around it
       const was = holdTop(boxId);
@@ -286,7 +327,6 @@ export default function Calendar() {
       };
       return;
     }
-    if (t > CAL_SHOWN_LAST) setMore(true);
     after.current = refocus;
   };
 
@@ -301,9 +341,9 @@ export default function Calendar() {
     after.current = () => tileRef.current?.focus();
   };
 
-  // Esc anywhere in d4 closes the brief and returns to its day
+  // Esc on a day or in its brief closes the brief and returns to the day (not from the date field or the filters)
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key === "Escape" && open) {
+    if (e.key === "Escape" && open && (e.target as Element).closest(".cal-dt, .cal-rw")) {
       e.preventDefault();
       closeBrief(true);
     }
@@ -319,7 +359,24 @@ export default function Calendar() {
   const openDayData = openIdx > -1 ? CAL_DAYS[openIdx] : null;
 
   return (
-    <section id="d4" ref={ref} aria-labelledby="d4-h" className="cal" onKeyDown={onKey}>
+    <section
+      id="d4"
+      ref={ref}
+      aria-labelledby="d4-h"
+      className="cal"
+      onKeyDown={onKey}
+      onFocus={(e) => {
+        focusIn.current = e.target;
+      }}
+      onBlur={(e) => {
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        // Focus left the calendar, unless the node was removed while focused (checked once the commit is done)
+        const t = e.target;
+        queueMicrotask(() => {
+          if (focusIn.current === t && t.isConnected) focusIn.current = null;
+        });
+      }}
+    >
       <div className="wrap">
         <p className="kicker cal-kick">YOUR FREE LAUNCH PLAN · AN EXAMPLE</p>
         <h2 id="d4-h" className="h2 cal-h2">
@@ -339,7 +396,10 @@ export default function Calendar() {
                 min={today ?? undefined}
                 max={today ? addDays(today, OPENING_MAX_DAYS) : undefined}
                 value={opening.kind === "date" ? opening.date : ""}
-                onChange={(e) => setOpeningDate(e.target.value)}
+                onChange={(e) => {
+                  setSlide(false);
+                  setOpeningDate(e.target.value);
+                }}
               />
             </div>
             <div className="cal-chips" role="group" aria-label="Show posts by their job">
@@ -355,7 +415,12 @@ export default function Calendar() {
                     onClick={() => pickFilter(f.id)}
                   >
                     <span className="cal-chl">{l1}</span>
-                    {l2 && <span className="cal-chl">{l2}</span>}
+                    {l2 && (
+                      <>
+                        {" "}
+                        <span className="cal-chl">{l2}</span>
+                      </>
+                    )}
                   </button>
                 );
               })}
@@ -372,7 +437,7 @@ export default function Calendar() {
           </div>
         </div>
         <p className="sr-only" aria-live="polite">
-          {announce}
+          <span key={announce.n}>{announce.text}</span>
         </p>
 
         <div className="cal-dt">

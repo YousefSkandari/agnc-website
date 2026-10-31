@@ -165,7 +165,7 @@ export function DeskBrief({ day, x, nav, overlayOpen }: { day: CalDay; x: DayVie
 
 // The week rows' brief (Cal-4): the post on the left, the code, title, format and job beside it with the controls
 // under them, then the hook, when it goes out and why across the full width. `col` places the caret over the tapped
-// tile; `slide` grows it open (a fresh open with motion on; stepping or moving between rows never slides).
+// tile; `slide` grows it open (a tap that opens it, with motion on; stepping and date changes never slide).
 export function RowBrief({
   day,
   x,
@@ -183,10 +183,10 @@ export function RowBrief({
 }) {
   const m = day.media;
   const wide = !!m && m.ratio > 0.6;
-  const frame = ["cal-rbmedia", !m ? "cal-rbmedia--sample" : day.id === "d1" ? "cal-rbmedia--d1" : ""].filter(Boolean).join(" ");
   const date = rowDate(x);
+  const cls = ["cal-rb", slide && "is-slide", (col === 0 || col === 6) && `is-c${col}`].filter(Boolean).join(" ");
   return (
-    <div className={`cal-rb${slide ? " is-slide" : ""}`} style={{ "--col": col } as CSSProperties}>
+    <div className={cls} style={{ "--col": col } as CSSProperties}>
       <svg className="cal-rbcaret" aria-hidden="true" focusable="false" width="16" height="9" viewBox="0 0 16 9">
         <path d="M0 9 L8 0.5 L16 9 Z" />
       </svg>
@@ -194,7 +194,7 @@ export function RowBrief({
         <div className="cal-rbclip">
           <div id="cal-rbrief" className="cal-rbp" role="region" tabIndex={-1} aria-labelledby="cal-rbt">
             <div className="cal-rbtop">
-              <div className={frame}>
+              <div className={m ? "cal-rbmedia" : "cal-rbmedia cal-rbmedia--sample"}>
                 {m?.kind === "video" && <BriefReel key={day.id} day={day} overlayOpen={overlayOpen} round />}
                 {m?.kind === "image" && (
                   <img
@@ -223,6 +223,7 @@ export function RowBrief({
                     <>
                       <span aria-hidden="true"> · </span>
                       <span className={`cal-rbdate${x.past ? " is-past" : ""}`}>{date}</span>
+                      {x.past && <span className="sr-only">, already past</span>}
                     </>
                   )}
                 </p>

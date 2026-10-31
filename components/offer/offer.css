@@ -760,6 +760,9 @@
 .cal-tile.is-dim .cal-tfmt {
   color: var(--muted);
 }
+.cal-tile.is-d1.is-dim:not(.is-open) .cal-tlab {
+  color: var(--gold);
+}
 .cal-tile.is-past .cal-tlab {
   text-decoration: line-through;
 }
@@ -786,13 +789,17 @@
 }
 
 /* The key, in the widest run of empty cells */
+/* It never sets the row's height (three lines are taller than a tile on a 320px screen): centred, overflowing */
 .cal-rkey {
   align-self: center;
   justify-self: start;
+  height: 0;
   padding: 0 4px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
+  overflow: visible;
 }
 .cal-rkey.is-start {
   justify-self: end;
@@ -849,6 +856,13 @@
   min-height: 0;
   overflow: hidden;
   border-radius: 16px;
+}
+/* A caret over the first or last column would sit on the panel's rounded corner: that corner tightens */
+.cal-rb.is-c0 :is(.cal-rbclip, .cal-rbp) {
+  border-top-left-radius: 6px;
+}
+.cal-rb.is-c6 :is(.cal-rbclip, .cal-rbp) {
+  border-top-right-radius: 6px;
 }
 .cal-rbp {
   padding: 14px;
@@ -962,6 +976,7 @@
 }
 .cal-rbdate {
   color: var(--soft);
+  white-space: nowrap;
 }
 .cal-rbdate.is-past {
   text-decoration: line-through;
@@ -1264,6 +1279,15 @@
   }
 }
 
+@keyframes cal-grow {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
 @media (max-width: 1200px) {
   .cal-dt,
   .cal-leg {
@@ -1272,9 +1296,30 @@
   .cal-rw {
     display: block;
   }
-  /* The key is in the rows here, so with no status line the row under the controls goes */
+  /* The key is in the rows here, so with no status line the row under the controls takes no room. It stays in the
+     page (not display: none), so the live region is there before its first message. */
   .cal-stat:has(> .cal-status:empty) {
-    display: none;
+    margin-top: 0;
+    min-height: 0;
+  }
+  /* Keyboard focus scrolls a control clear of the sticky header (and of the phone's bottom bar, below) */
+  .cal :is(button, input) {
+    scroll-margin-top: calc(var(--header-h) + 8px);
+  }
+  /* A bigger post in the brief on a tablet */
+  .cal-rbmedia {
+    width: 140px;
+    height: 249px;
+  }
+}
+
+/* Between 641 and 760px the five pills tighten so they stay on one line */
+@media (min-width: 641px) and (max-width: 760px) {
+  .cal-chips {
+    gap: 6px;
+  }
+  .cal-chips .chipb {
+    padding: 0 12px;
   }
 }
 
@@ -1322,7 +1367,7 @@
   }
   .cal-datewrap {
     order: 1;
-    margin-top: 16px;
+    margin-top: 12px;
     height: 48px;
     justify-content: space-between;
   }
@@ -1405,6 +1450,13 @@
     margin-top: 12px;
     max-width: none;
   }
+  .cal-rbmedia {
+    width: 110px;
+    height: 196px;
+  }
+  .cal :is(button, input) {
+    scroll-margin-bottom: calc(73px + env(safe-area-inset-bottom));
+  }
 
   .cal-close {
     margin-top: 28px;
@@ -1422,6 +1474,26 @@
   .price-row {
     font-size: 22px;
     line-height: 28px;
+  }
+}
+
+/* Under 360px: a narrower post in the brief so its three controls fit beside it, and tighter tile labels so "OPEN"
+   fits a 36px tile */
+@media (max-width: 359px) {
+  .cal-rbmedia {
+    width: 96px;
+    height: 171px;
+  }
+  .cal-tlab {
+    left: 2px;
+    padding: 1px 2px;
+    letter-spacing: 0;
+  }
+}
+
+@media (hover: hover) and (max-width: 640px) {
+  .cal-chips .chipb[aria-pressed="false"]:hover {
+    background: var(--hover-1);
   }
 }
 
