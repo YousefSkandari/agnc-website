@@ -1,19 +1,20 @@
 "use client";
 
 // d4, "Thirty days. Every post planned.": the example 30-day launch plan (artboard B-desktop 366-606, logic
-// 1662-1871; phone B-phone-5). Above 1200px a week grid with a brief under the open day's row; at 1200px and below
-// a sideways swiper with the brief under it. The opening day is shared with the form's step 3 (useOpening).
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+// 1662-1871). Above 1200px a week grid with a brief under the open day's row; at 1200px and below week rows of small
+// post tiles, with the brief under the tapped tile's row (Cal-4-week-rows). The opening day is shared with the form's
+// step 3 (useOpening).
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import PlanButton from "@/components/ui/PlanButton";
 import { CAL_DAYS, calIndex, type CalDay } from "@/content/calendar";
-import { MQ, useLondonToday, useMediaQuery, usePhone } from "@/lib/client/device";
+import { MQ, useLondonToday, useMediaQuery } from "@/lib/client/device";
 import { useOpening } from "@/lib/client/opening";
 import { addDays, OPENING_MAX_DAYS } from "@/lib/dates";
 import { useOverlay } from "@/lib/client/overlay";
-import { useActiveSection, useSectionRef } from "@/lib/client/sections";
-import { DeskBrief, PhoneBrief, type BriefNav } from "./CalBrief";
+import { useSectionRef } from "@/lib/client/sections";
+import { DeskBrief, RowBrief, type BriefNav } from "./CalBrief";
 import { Glyph, LogoPlate } from "./CalParts";
-import CalSwiper from "./CalSwiper";
+import CalRows from "./CalRows";
 import {
   CAL_COUNT,
   CAL_FILTERS,
@@ -21,18 +22,55 @@ import {
   calStatus,
   cellAria,
   dayView,
+  dayWords,
   filterLive,
+  layoutRows,
   layoutWeeks,
-  matchFrom,
+  stepKept,
   type CalFilter,
   type DayView,
 } from "./calView";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 // Smooth scrolling only with motion on and no reduced-motion setting
 function smooth(): boolean {
   return document.documentElement.dataset.motion === "on" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// Two lines each on the phone's filter bar, so all five fit across it (Cal-4)
+const CHIP_LINES: Record<CalFilter, [string, string]> = {
+  all: ["All", ""],
+  found: ["Get", "found"],
+  followed: ["Get", "followed"],
+  in: ["Fill", "tables"],
+  back: ["Bring them", "back"],
+};
+
+// The part of the window the page shows through: under the sticky header (none on the phone) and above the phone's
+// bottom bar while it shows
+function viewBand(): { top: number; bottom: number } {
+  const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 0;
+  const bar = document.querySelector<HTMLElement>(".bbar");
+  const barTop = bar && bar.getClientRects().length ? bar.getBoundingClientRect().top : window.innerHeight;
+  return { top, bottom: Math.min(window.innerHeight, barTop) };
+}
+
+// Bring day i's row and its open brief into view together, the row first if both do not fit (Cal-4 reveal). The
+// brief's panel is measured rather than its clip, so a brief still growing open counts at its full height.
+function revealRow(i: number, animate: boolean) {
+  const tile = document.getElementById(`cal-t-${CAL_DAYS[i].id}`);
+  const row = tile?.closest<HTMLElement>(".cal-rwk");
+  if (!tile || !row) return;
+  const { top, bottom } = viewBand();
+  const rowTop = row.getBoundingClientRect().top - 12;
+  const panel = document.getElementById("cal-rbrief");
+  const end = (panel && row.contains(panel) ? panel : tile).getBoundingClientRect().bottom + 16;
+  let dy = 0;
+  if (end > bottom) dy = end - bottom;
+  if (rowTop - dy < top) dy = rowTop - top;
+  if (Math.abs(dy) > 1) window.scrollBy({ top: dy, behavior: animate ? "smooth" : "instant" });
 }
 
 // The first day hidden behind "And 13 more." gets focus when they are shown
@@ -122,19 +160,20 @@ export default function Calendar() {
   const ref = useSectionRef("d4");
   const today = useLondonToday();
   const { opening, setOpeningDate } = useOpening();
-  const isSwiper = useMediaQuery(MQ.swiper);
-  const isPhone = usePhone();
-  const section = useActiveSection();
+  const isRows = useMediaQuery(MQ.swiper);
   const overlay = useOverlay();
   const overlayOpen = overlay.state.kind !== "none";
 
   const [filter, setFilter] = useState<CalFilter>("all");
   const [open, setOpen] = useState<string | null>(null);
   const [more, setMore] = useState(false);
-  const [cur, setCur] = useState(0);
-  const [announce, setAnnounce] = useState("");
+  // The rows' brief grows open: a fresh open with motion on. Moving to another day in the same row keeps it as it
+  // was (the brief stays mounted); stepping into another row never slides.
+  const [slide, setSlide] = useState(false);
+  // Each announcement is a new node, so a repeat of the last one (stepping back onto the same day) is read again
+  const [announce, setAnnounceState] = useState({ text: "", n: 0 });
+  const setAnnounce = (text: string) => setAnnounceState((a) => ({ text, n: a.n + 1 }));
 
-  const swRef = useRef<HTMLDivElement>(null);
   const tileRef = useRef<HTMLButtonElement>(null);
   // Work to do once the next render is on screen (focus, scrolling), like setState's callback in the artboard
   const after = useRef<(() => void) | null>(null);
@@ -145,152 +184,150 @@ export default function Calendar() {
       f();
     }
   });
+  // The same, before the browser paints: the rows hold the tapped tile (or the stepped brief) still on screen while
+  // the brief moves between rows, then scroll only as far as they must
+  const beforePaint = useRef<(() => void) | null>(null);
+  useIsoLayoutEffect(() => {
+    const f = beforePaint.current;
+    if (f) {
+      beforePaint.current = null;
+      f();
+    }
+  });
+
+  // The element focused inside the calendar, while focus is in it. Kept when it was removed while focused (Chrome
+  // blurs a node as it is removed), so the swap below can tell focus was lost with the old brief.
+  const focusIn = useRef<Element | null>(null);
+  // Whether the calendar is on screen. The observer reports after layout, so while the layouts swap this still says
+  // where the reader was (the rows are far shorter than the grid, so the page reflows under them).
+  const onScreen = useRef(false);
+  useEffect(() => {
+    const el = document.getElementById("d4");
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => {
+      onScreen.current = e.isIntersecting;
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  // Crossing 1200px with a day open swaps one brief for the other. If focus was in the calendar and is now gone with
+  // the old brief, or sits in the layout just hidden (the grid's cells or the rows' tiles), put it on the open day's
+  // tile or cell, and bring the brief into view if the calendar was on screen. Focus anywhere else, or nowhere (a tap
+  // in Safari focuses nothing), is left alone and nothing scrolls.
+  const wasRows = useRef(isRows);
+  useIsoLayoutEffect(() => {
+    if (wasRows.current === isRows) return;
+    wasRows.current = isRows;
+    const el = focusIn.current;
+    if (!open || !el) return;
+    const lost = !el.isConnected || !!el.closest(isRows ? ".cal-dt" : ".cal-rw");
+    if (!lost) return;
+    document.getElementById(isRows ? `cal-t-${open}` : `cal-c-${open}`)?.focus({ preventScroll: true });
+    if (!onScreen.current) return;
+    if (isRows) revealRow(calIndex(open), false);
+    else document.getElementById("cal-brief")?.scrollIntoView({ block: "nearest", behavior: "instant" });
+  }, [isRows, open]);
 
   const { opening: openDate, status } = calStatus(opening, today);
   const views = useMemo(() => CAL_DAYS.map((d) => dayView(d, openDate, today, filter)), [openDate, today, filter]);
   const weeks = useMemo(() => layoutWeeks(openDate, more), [openDate, more]);
+  const rows = useMemo(() => layoutRows(openDate), [openDate]);
+  const rowOf = (i: number) => rows.findIndex((w) => w.tiles.some((t) => t.day.idx === i));
   const openIdx = open ? calIndex(open) : -1;
-
-  // ----- the swiper's current card -----
-  // While a programmatic smooth scroll runs, its passing positions are not the current card
-  const target = useRef<number | null>(null);
-  const targetTimer = useRef(0);
-  const frame = useRef(0);
-  // The card last chosen by a tap, a filter jump or the brief. On a wide swiper the last few cards can never reach
-  // the start, so at the end of the scroll a chosen card that is fully in view stays current.
-  const chosen = useRef<number | null>(null);
-
-  const measure = useCallback(() => {
-    frame.current = 0;
-    const sw = swRef.current;
-    if (!sw) return;
-    const cards = sw.querySelectorAll<HTMLElement>("[data-card]");
-    const x = sw.scrollLeft + 16;
-    let best = 0;
-    let bd = Infinity;
-    cards.forEach((c, i) => {
-      const dd = Math.abs(c.offsetLeft - x);
-      if (dd < bd) {
-        bd = dd;
-        best = i;
-      }
-    });
-    const atEnd = sw.scrollLeft >= sw.scrollWidth - sw.clientWidth - 1;
-    const ch = chosen.current !== null ? cards[chosen.current] : null;
-    if (atEnd && ch && ch.offsetLeft >= sw.scrollLeft && ch.offsetLeft + ch.offsetWidth <= sw.scrollLeft + sw.clientWidth) {
-      best = chosen.current as number;
-    } else if (target.current === null) {
-      chosen.current = null;
-    }
-    if (target.current !== null) {
-      if (best !== target.current) return;
-      target.current = null;
-    }
-    setCur((c) => (c === best ? c : best));
-  }, []);
-
-  const onSwScroll = useCallback(() => {
-    if (!frame.current) frame.current = requestAnimationFrame(measure);
-  }, [measure]);
-
-  useEffect(() => {
-    const sw = swRef.current;
-    const onEnd = () => {
-      target.current = null;
-      measure();
-    };
-    sw?.addEventListener("scrollend", onEnd);
-    return () => {
-      sw?.removeEventListener("scrollend", onEnd);
-      if (frame.current) cancelAnimationFrame(frame.current);
-      window.clearTimeout(targetTimer.current);
-    };
-  }, [measure]);
-
-  // Scroll the swiper so card i sits at the start (D 1687-1695)
-  const swTo = useCallback(
-    (i: number, animate: boolean) => {
-      setCur(i);
-      chosen.current = i;
-      const sw = swRef.current;
-      const card = sw?.querySelectorAll<HTMLElement>("[data-card]")[i];
-      if (!sw || !card) return;
-      window.clearTimeout(targetTimer.current);
-      target.current = animate ? i : null;
-      if (animate)
-        targetTimer.current = window.setTimeout(() => {
-          target.current = null;
-          measure();
-        }, 1000);
-      sw.scrollTo({ left: card.offsetLeft - 16, behavior: animate ? "smooth" : "auto" });
-    },
-    [measure],
-  );
-
-  // Coming into the swiper layout with a day already current: show that card
-  const curRef = useRef(cur);
-  curRef.current = cur;
-  useEffect(() => {
-    if (isSwiper) swTo(curRef.current, false);
-  }, [isSwiper, swTo]);
 
   // ----- handlers (D 1676-1757) -----
   const pickFilter = (job: CalFilter) => {
     setFilter(job);
     setAnnounce(filterLive(job));
-    if (isSwiper && job !== "all") {
-      const t = matchFrom(cur, job);
-      if (t !== cur) swTo(t, smooth());
-    }
+  };
+
+  // The element's top on screen now, so it can be held there through the next render
+  const holdTop = (elId: string) => document.getElementById(elId)?.getBoundingClientRect().top ?? null;
+  const holdStill = (elId: string, was: number | null) => {
+    const el = document.getElementById(elId);
+    if (!el || was === null) return;
+    const dy = el.getBoundingClientRect().top - was;
+    if (Math.abs(dy) > 0.5) window.scrollBy({ top: dy, behavior: "instant" });
   };
 
   const closeBrief = (refocus: boolean) => {
     const id = open;
     if (!id) return;
     setOpen(null);
-    if (refocus) {
-      const sw = isSwiper;
-      after.current = () => document.getElementById(`${sw ? "cal-p-" : "cal-c-"}${id}`)?.focus();
+    if (isRows) {
+      const i = calIndex(id);
+      beforePaint.current = () => {
+        if (refocus) document.getElementById(`cal-t-${id}`)?.focus({ preventScroll: true });
+        revealRow(i, smooth());
+      };
+    } else if (refocus) {
+      after.current = () => document.getElementById(`cal-c-${id}`)?.focus();
     }
   };
 
-  const openDay = (id: string) => {
+  const openDay = (id: string, keyboard = false) => {
     // Clicking the open day again closes it
     if (open === id) {
       closeBrief(false);
       return;
     }
     const i = calIndex(id);
+    if (isRows) {
+      // The tapped tile stays where it is on screen while the brief leaves another row and opens under this one.
+      // From the keyboard, focus moves into the brief.
+      const tileId = `cal-t-${id}`;
+      const was = holdTop(tileId);
+      setSlide(openIdx > -1 && rowOf(openIdx) === rowOf(i) ? slide : smooth());
+      setOpen(id);
+      // So the day is there on the desktop grid too if the window widens
+      if (i > CAL_SHOWN_LAST) setMore(true);
+      beforePaint.current = () => {
+        holdStill(tileId, was);
+        if (keyboard) document.getElementById("cal-rbrief")?.focus({ preventScroll: true });
+        revealRow(i, smooth());
+      };
+      return;
+    }
     setOpen(id);
     if (i > CAL_SHOWN_LAST) setMore(true);
-    const sw = isSwiper;
-    const phone = isPhone;
-    if (sw) swTo(i, smooth());
     after.current = () => {
-      const el = document.getElementById(sw ? "cal-pbrief" : "cal-brief");
+      const el = document.getElementById("cal-brief");
       if (!el) return;
-      const behavior: ScrollBehavior = smooth() ? "smooth" : "auto";
-      if (sw) el.focus({ preventScroll: true });
-      // Phone: the brief sits 56px from the top. Elsewhere it scrolls only as far as it must.
-      if (phone) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 56, behavior });
-      else el.scrollIntoView({ block: "nearest", behavior });
+      // It scrolls only as far as it must
+      el.scrollIntoView({ block: "nearest", behavior: smooth() ? "smooth" : "auto" });
     };
   };
 
+  // On the rows, previous and next skip the days the filter dims (Cal-4); the grid walks every day
+  const stepTo = (dir: -1 | 1) => (openIdx < 0 ? -1 : isRows ? stepKept(openIdx, dir, filter) : openIdx + dir);
+
   const step = (dir: -1 | 1) => {
-    if (openIdx < 0) return;
-    const t = openIdx + dir;
+    const t = stepTo(dir);
     if (t < 0 || t > CAL_COUNT - 1) return;
+    const boxId = isRows ? "cal-rbrief" : "cal-brief";
+    const had = !!document.getElementById(boxId)?.contains(document.activeElement);
+    // The brief can move to another row and remount: keep focus on the same control
+    const which = dir < 0 ? "prev" : "next";
+    const refocus = () => {
+      const box = document.getElementById(boxId);
+      if (box && !box.contains(document.activeElement)) box.querySelector<HTMLElement>(`[data-step="${which}"]`)?.focus({ preventScroll: isRows });
+    };
     setOpen(CAL_DAYS[t].id);
     if (t > CAL_SHOWN_LAST) setMore(true);
-    const sw = isSwiper;
-    if (sw) swTo(t, false);
-    // On the grid the brief can move to another row and remount: keep focus on the same control
-    const which = dir < 0 ? "prev" : "next";
-    after.current = () => {
-      const box = document.getElementById(sw ? "cal-pbrief" : "cal-brief");
-      if (box && !box.contains(document.activeElement)) box.querySelector<HTMLElement>(`[data-step="${which}"]`)?.focus();
-    };
+    // Focus stays on previous or next, so the new day is announced
+    setAnnounce(`${dayWords(CAL_DAYS[t], views[t])}. ${CAL_DAYS[t].title}`);
+    if (isRows) {
+      // The brief holds still on screen and the rows move around it
+      const was = holdTop(boxId);
+      if (rowOf(openIdx) !== rowOf(t)) setSlide(false);
+      beforePaint.current = () => {
+        holdStill(boxId, was);
+        if (had) refocus();
+        revealRow(t, false);
+      };
+      return;
+    }
+    after.current = refocus;
   };
 
   const showAll = () => {
@@ -304,17 +341,17 @@ export default function Calendar() {
     after.current = () => tileRef.current?.focus();
   };
 
-  // Esc anywhere in d4 closes the brief and returns to its day
+  // Esc on a day or in its brief closes the brief and returns to the day (not from the date field or the filters)
   const onKey = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key === "Escape" && open) {
+    if (e.key === "Escape" && open && (e.target as Element).closest(".cal-dt, .cal-rw")) {
       e.preventDefault();
       closeBrief(true);
     }
   };
 
   const nav: BriefNav = {
-    first: openIdx <= 0,
-    last: openIdx >= CAL_COUNT - 1,
+    first: stepTo(-1) < 0,
+    last: stepTo(1) < 0 || stepTo(1) > CAL_COUNT - 1,
     onPrev: () => step(-1),
     onNext: () => step(1),
     onClose: () => closeBrief(true),
@@ -322,7 +359,24 @@ export default function Calendar() {
   const openDayData = openIdx > -1 ? CAL_DAYS[openIdx] : null;
 
   return (
-    <section id="d4" ref={ref} aria-labelledby="d4-h" className="cal" onKeyDown={onKey}>
+    <section
+      id="d4"
+      ref={ref}
+      aria-labelledby="d4-h"
+      className="cal"
+      onKeyDown={onKey}
+      onFocus={(e) => {
+        focusIn.current = e.target;
+      }}
+      onBlur={(e) => {
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        // Focus left the calendar, unless the node was removed while focused (checked once the commit is done)
+        const t = e.target;
+        queueMicrotask(() => {
+          if (focusIn.current === t && t.isConnected) focusIn.current = null;
+        });
+      }}
+    >
       <div className="wrap">
         <p className="kicker cal-kick">YOUR FREE LAUNCH PLAN · AN EXAMPLE</p>
         <h2 id="d4-h" className="h2 cal-h2">
@@ -342,15 +396,34 @@ export default function Calendar() {
                 min={today ?? undefined}
                 max={today ? addDays(today, OPENING_MAX_DAYS) : undefined}
                 value={opening.kind === "date" ? opening.date : ""}
-                onChange={(e) => setOpeningDate(e.target.value)}
+                onChange={(e) => {
+                  setSlide(false);
+                  setOpeningDate(e.target.value);
+                }}
               />
             </div>
             <div className="cal-chips" role="group" aria-label="Show posts by their job">
-              {CAL_FILTERS.map((f) => (
-                <button key={f.id} type="button" className="chipb" aria-pressed={filter === f.id} onClick={() => pickFilter(f.id)}>
-                  {f.label}
-                </button>
-              ))}
+              {CAL_FILTERS.map((f) => {
+                const [l1, l2] = CHIP_LINES[f.id];
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className="chipb"
+                    aria-label={f.label}
+                    aria-pressed={filter === f.id}
+                    onClick={() => pickFilter(f.id)}
+                  >
+                    <span className="cal-chl">{l1}</span>
+                    {l2 && (
+                      <>
+                        {" "}
+                        <span className="cal-chl">{l2}</span>
+                      </>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="cal-stat">
@@ -364,7 +437,7 @@ export default function Calendar() {
           </div>
         </div>
         <p className="sr-only" aria-live="polite">
-          {announce}
+          <span key={announce.n}>{announce.text}</span>
         </p>
 
         <div className="cal-dt">
@@ -379,7 +452,7 @@ export default function Calendar() {
           </div>
           <div className="cal-weeks" role="group" aria-label="The 30 days">
             {weeks.map((w) => {
-              const hasBrief = !isSwiper && !!openDayData && w.cells.some((c) => c.day.idx === openIdx);
+              const hasBrief = !isRows && !!openDayData && w.cells.some((c) => c.day.idx === openIdx);
               return (
                 <div key={w.key} className="cal-week">
                   <div className="cal-lane" aria-hidden="true">
@@ -427,20 +500,26 @@ export default function Calendar() {
           )}
         </div>
 
-        <CalSwiper
+        <CalRows
           views={views}
+          weeks={rows}
           open={open}
-          cur={cur}
-          canPlay={isSwiper && section.id === "d4"}
-          overlayOpen={overlayOpen}
-          shown={isSwiper}
-          phone={isPhone}
-          swRef={swRef}
-          onScroll={onSwScroll}
+          briefRow={isRows && openDayData ? rowOf(openIdx) : -1}
+          brief={
+            isRows &&
+            openDayData && (
+              <RowBrief
+                day={openDayData}
+                x={views[openIdx]}
+                nav={nav}
+                overlayOpen={overlayOpen}
+                col={rows[rowOf(openIdx)].tiles.find((t) => t.day.idx === openIdx)?.col ?? 0}
+                slide={slide}
+              />
+            )
+          }
           onOpen={openDay}
-        >
-          {isSwiper && openDayData && <PhoneBrief day={openDayData} x={views[openIdx]} nav={nav} />}
-        </CalSwiper>
+        />
 
         <div className="cal-close">
           <p className="cal-closeq">Want this for your opening?</p>

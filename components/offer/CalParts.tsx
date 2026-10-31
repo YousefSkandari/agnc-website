@@ -1,4 +1,4 @@
-// Small pieces shared by d4's grid, brief and swiper. Decorative marks are aria-hidden; the button around them
+// Small pieces shared by d4's grid, week rows and briefs. Decorative marks are aria-hidden; the button around them
 // carries the name.
 import type { CalDay } from "@/content/calendar";
 import { brand } from "@/lib/media";
@@ -7,7 +7,7 @@ import type { ManagedVideo } from "@/lib/client/playback";
 import { glyphOf } from "./calView";
 
 // The format glyph: one stroke path on a 24 grid, Stories drawn as a dashed ring (D 420, 435, 475)
-export function Glyph({ day, size }: { day: CalDay; size: number }) {
+export function Glyph({ day, size, stroke = 1.5 }: { day: CalDay; size: number; stroke?: number }) {
   const g = glyphOf(day);
   return (
     <svg
@@ -16,7 +16,7 @@ export function Glyph({ day, size }: { day: CalDay; size: number }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={stroke}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -62,6 +62,15 @@ export function PlayChip({ v, tap, className, iconSize }: { v: ManagedVideo; tap
     <button type="button" className={className} onClick={v.play}>
       <IconPlay size={iconSize} />
       {tap ? "Tap to play" : "Play the post"}
+    </button>
+  );
+}
+
+// The round gold play button where a chip will not fit (the week rows' brief)
+export function PlayRound({ v, tap, className }: { v: ManagedVideo; tap: boolean; className: string }) {
+  return (
+    <button type="button" className={className} aria-label={tap ? "Tap to play" : "Play the post"} onClick={v.play}>
+      <IconPlay size={18} />
     </button>
   );
 }

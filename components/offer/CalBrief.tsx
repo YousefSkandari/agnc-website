@@ -1,14 +1,14 @@
 "use client";
 
 // d4's brief: one open day at a time. On the desktop grid it opens under the week row holding the day (D 452-500);
-// under the phone swiper it opens below the counter (D 572-597, B-phone-5 140-176).
-import { useEffect, useState } from "react";
+// on the week rows (1200px and below) under the row of the tapped tile, with a caret pointing at it (Cal-4).
+import { useEffect, useState, type CSSProperties } from "react";
 import { CAL_JOBS, type CalDay } from "@/content/calendar";
 import { IconClose, IconNext, IconPrev } from "@/components/ui/icons";
 import { useSaveData } from "@/lib/client/device";
 import { useManagedVideo } from "@/lib/client/playback";
-import { briefCode, type DayView } from "./calView";
-import { Glyph, LogoMark, PauseButton, PlayChip, videoUi } from "./CalParts";
+import { briefCode, rowCode, rowDate, type DayView } from "./calView";
+import { Glyph, LogoMark, LogoPlate, PauseButton, PlayChip, PlayRound, videoUi } from "./CalParts";
 
 export type BriefNav = {
   first: boolean;
@@ -78,10 +78,11 @@ function useOnScreen(el: Element | null, set: (on: boolean) => void) {
   }, [el, set]);
 }
 
-// The reel in the desktop brief: muted, looped, key "cal", no postId (the calendar does not count towards the stop
-// timer). Like the hero, it plays only while on screen with no overlay open, and a reel the visitor paused stays
-// paused. It remounts per day (keyed by the caller), so a new day may start by itself again.
-function BriefReel({ day, overlayOpen }: { day: CalDay; overlayOpen: boolean }) {
+// The reel in a brief: muted, looped, key "cal", no postId (the calendar does not count towards the stop timer).
+// Like the hero, it plays only while on screen with no overlay open, and a reel the visitor paused stays paused. It
+// remounts per day (keyed by the caller), so a new day may start by itself again. `round`: the rows' narrow frame,
+// where the play chip becomes a round button.
+function BriefReel({ day, overlayOpen, round = false }: { day: CalDay; overlayOpen: boolean; round?: boolean }) {
   const m = day.media;
   const [onScreen, setOnScreen] = useState(false);
   const v = useManagedVideo("cal", { active: onScreen && !overlayOpen });
@@ -103,9 +104,13 @@ function BriefReel({ day, overlayOpen }: { day: CalDay; overlayOpen: boolean }) 
         aria-label={m.alt}
       />
       {ui.chip ? (
-        <PlayChip v={v} tap={ui.tap} className="cal-chip" iconSize={18} />
+        round ? (
+          <PlayRound v={v} tap={ui.tap} className="cal-rbplay" />
+        ) : (
+          <PlayChip v={v} tap={ui.tap} className="cal-chip" iconSize={18} />
+        )
       ) : (
-        <PauseButton v={v} className="cal-vbtn cal-bpause" />
+        <PauseButton v={v} className={round ? "cal-vbtn cal-rbpause" : "cal-vbtn cal-bpause"} />
       )}
     </>
   );
@@ -158,35 +163,107 @@ export function DeskBrief({ day, x, nav, overlayOpen }: { day: CalDay; x: DayVie
   );
 }
 
-export function PhoneBrief({ day, x, nav }: { day: CalDay; x: DayView; nav: BriefNav }) {
+// The week rows' brief (Cal-4): the post on the left, the code, title, format and job beside it with the controls
+// under them, then the hook, when it goes out and why across the full width. `col` places the caret over the tapped
+// tile; `slide` grows it open (a tap that opens it, with motion on; stepping and date changes never slide).
+export function RowBrief({
+  day,
+  x,
+  nav,
+  overlayOpen,
+  col,
+  slide,
+}: {
+  day: CalDay;
+  x: DayView;
+  nav: BriefNav;
+  overlayOpen: boolean;
+  col: number;
+  slide: boolean;
+}) {
+  const m = day.media;
+  const wide = !!m && m.ratio > 0.6;
+  const date = rowDate(x);
+  const cls = ["cal-rb", slide && "is-slide", (col === 0 || col === 6) && `is-c${col}`].filter(Boolean).join(" ");
   return (
-    <div id="cal-pbrief" className="cal-pb cal-bin" tabIndex={-1} role="region" aria-labelledby="cal-pbt">
-      <div className="cal-bhead cal-pbhead">
-        <p className="cal-bcode cal-pbcode">{briefCode(day, x)}</p>
-        <Controls nav={nav} />
-      </div>
-      <div className="cal-pbmark">
-        {day.work ? (
-          <span className="cal-pbstamp">
-            <LogoMark />
-            <span>{day.mark}</span>
-          </span>
-        ) : (
-          <span className="cal-sbadge cal-pbsbadge">SAMPLE</span>
-        )}
-      </div>
-      <h3 id="cal-pbt" className="cal-pbt">
-        {day.title}
-      </h3>
-      <dl className="cal-pbdl">
-        {rowsOf(day).map(([k, val]) => (
-          <div key={k}>
-            <dt>{k}</dt>
-            <dd>{val}</dd>
+    <div className={cls} style={{ "--col": col } as CSSProperties}>
+      <svg className="cal-rbcaret" aria-hidden="true" focusable="false" width="16" height="9" viewBox="0 0 16 9">
+        <path d="M0 9 L8 0.5 L16 9 Z" />
+      </svg>
+      <div className="cal-rbgrow">
+        <div className="cal-rbclip">
+          <div id="cal-rbrief" className="cal-rbp" role="region" tabIndex={-1} aria-labelledby="cal-rbt">
+            <div className="cal-rbtop">
+              <div className={m ? "cal-rbmedia" : "cal-rbmedia cal-rbmedia--sample"}>
+                {m?.kind === "video" && <BriefReel key={day.id} day={day} overlayOpen={overlayOpen} round />}
+                {m?.kind === "image" && (
+                  <img
+                    className={`cal-rbimg${wide ? " is-wide" : ""}`}
+                    src={m.src}
+                    alt={m.alt}
+                    width={m.width}
+                    height={m.height}
+                  />
+                )}
+                {m ? (
+                  <LogoPlate className="cal-rbplate" />
+                ) : (
+                  <span className="cal-rbsample">
+                    <span className="cal-rbsglyph" aria-hidden="true">
+                      <Glyph day={day} size={28} />
+                    </span>
+                    <span className="cal-rbsfmt">{day.fmtWord}.</span>
+                  </span>
+                )}
+              </div>
+              <div className="cal-rbside">
+                <p className="cal-rbcode">
+                  <span className={day.id === "d1" ? "is-gold" : undefined}>{rowCode(day, x)}</span>
+                  {date && (
+                    <>
+                      <span aria-hidden="true"> · </span>
+                      <span className={`cal-rbdate${x.past ? " is-past" : ""}`}>{date}</span>
+                      {x.past && <span className="sr-only">, already past</span>}
+                    </>
+                  )}
+                </p>
+                <p className="cal-rbmark">
+                  {day.work ? <span>{day.mark}</span> : <span className="cal-rbsbadge">SAMPLE</span>}
+                </p>
+                <h3 id="cal-rbt" className="cal-rbt">
+                  {day.title}
+                </h3>
+                <dl className="cal-rbdl">
+                  <div>
+                    <dt>FORMAT</dt>
+                    <dd>{day.fmt}</dd>
+                  </div>
+                  <div>
+                    <dt>ITS JOB</dt>
+                    <dd>{CAL_JOBS[day.job]}</dd>
+                  </div>
+                </dl>
+                <Controls nav={nav} />
+              </div>
+            </div>
+            <dl className="cal-rbdl cal-rbdl--more">
+              <div>
+                <dt>THE HOOK</dt>
+                <dd>{day.hook}</dd>
+              </div>
+              <div>
+                <dt>GOES OUT</dt>
+                <dd>{day.out}</dd>
+              </div>
+              <div>
+                <dt>WHY</dt>
+                <dd>{day.why}</dd>
+              </div>
+            </dl>
+            {!day.work && <p className="cal-rbnote">We write this one for you.</p>}
           </div>
-        ))}
-      </dl>
-      {!day.work && <p className="cal-pbnote">We write this one for you.</p>}
+        </div>
+      </div>
     </div>
   );
 }

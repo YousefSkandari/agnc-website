@@ -9,7 +9,7 @@ export const BP = {
   nav: 860, // at or below: header description hidden, d1 kicker shown
   short: 980, // at or below: short nav labels
   stack: 1100, // at or below: 40px gutters, single-column grids
-  swiper: 1200, // at or below: viewer single column, calendar becomes the swiper
+  swiper: 1200, // at or below: viewer single column, calendar becomes week rows
 } as const;
 
 export const MQ = {
